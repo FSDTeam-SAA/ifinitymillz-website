@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -40,16 +41,22 @@ const faqs = [
   },
 ];
 
+const INITIAL_COUNT = 3;
+
 export function FAQSection() {
+  const [showAll, setShowAll] = useState(false);
+
+  const visibleFaqs = showAll ? faqs : faqs.slice(0, INITIAL_COUNT);
+
   return (
     <section id="faq" className="py-12 sm:py-16 lg:py-24 bg-background">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto container px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground text-balance mb-12">
           FAQ
         </h2>
 
         <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq) => (
+          {visibleFaqs.map((faq) => (
             <AccordionItem
               key={faq.id}
               value={faq.id}
@@ -67,9 +74,14 @@ export function FAQSection() {
           ))}
         </Accordion>
 
-        <button className="mt-8 text-primary hover:text-primary/80 font-medium text-base sm:text-lg underline underline-offset-2 transition-colors">
-          Show More
-        </button>
+        {faqs.length > INITIAL_COUNT && (
+          <button
+            onClick={() => setShowAll((prev) => !prev)}
+            className="mt-8 text-primary hover:text-primary/80 font-medium text-base sm:text-lg underline underline-offset-2 transition-colors"
+          >
+            {showAll ? 'Show Less' : 'Show More'}
+          </button>
+        )}
       </div>
     </section>
   );

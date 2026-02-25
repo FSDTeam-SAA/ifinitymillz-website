@@ -15,9 +15,9 @@ export default function Home() {
       <main >
         <HeroSection />
         <DonationMattersSection />
-        <AboutSection/>
-        <ImpactSection />
         <CampaignsSection />
+        <ImpactSection />
+        <AboutSection/>
         <FAQSection />
       </main>
       <Footer />
