@@ -11,7 +11,7 @@ function ChangePasswordForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) { 
       alert("Passwords do not match!");
       return;
     }

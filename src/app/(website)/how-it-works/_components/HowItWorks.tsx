@@ -214,46 +214,46 @@ function SuccessStories() {
 function CTABanners() {
   return (
     <section className="px-4 pb-14 bg-white">
-  <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
-    {/* Fund someone */}
-    <div className="relative h-64 sm:h-64 rounded-lg overflow-hidden group">
-      <Image
-        src="/images/b-success-1.jpg"
-        alt="Discover amazing fundraising campaigns"
-        fill
-        className="object-cover brightness-75 group-hover:brightness-65 transition duration-300"
-      />
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-white font-bold text-lg leading-tight">
-          Discover amazing
-          <br />
-          fundraising campaigns
-        </p>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2.5 rounded transition">
-          Fund someone
-        </button>
-      </div>
-    </div>
+      <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Fund someone */}
+        <div className="relative h-72 sm:h-80 rounded-lg overflow-hidden group">
+          <Image
+            src="/images/b-success-1.jpg"
+            alt="Discover amazing fundraising campaigns"
+            fill
+            className="object-cover brightness-75 group-hover:brightness-65 transition duration-300"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
+            <p className="text-white font-bold text-xl leading-tight">
+              Discover amazing
+              <br />
+              fundraising campaigns
+            </p>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2.5 rounded transition">
+              Fund someone
+            </button>
+          </div>
+        </div>
 
-    {/* Start donating */}
-    <div className="relative h-52 sm:h-64 rounded-lg overflow-hidden group">
-      <Image
-        src="/images/b-success-2.jpg"
-        alt="Create your campaign"
-        fill
-        className="object-cover brightness-75 group-hover:brightness-65 transition duration-300"
-      />
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-white font-bold text-lg leading-tight">
-          Create your campaign
-        </p>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2.5 rounded transition">
-          Start donating
-        </button>
+        {/* Start donating */}
+        <div className="relative h-72 sm:h-80 rounded-lg overflow-hidden group">
+          <Image
+            src="/images/b-success-2.jpg"
+            alt="Create your campaign"
+            fill
+            className="object-cover brightness-75 group-hover:brightness-65 transition duration-300"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
+            <p className="text-white font-bold text-xl leading-tight">
+              Create your campaign
+            </p>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2.5 rounded transition">
+              Start donating
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
   );
 }
 
