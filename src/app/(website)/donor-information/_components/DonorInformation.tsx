@@ -39,7 +39,7 @@ export default function DonorInformation() {
   return (
     <div className="bg-gray-100 flex flex-col items-center justify-center px-4 py-20">
       {/* Page Title */}
-      <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-14">
+      <h1 className="text-2xl sm:text-[36px] font-medium text-[#131313] mb-14">
         Start Your Donation
       </h1>
 
@@ -80,74 +80,74 @@ export default function DonorInformation() {
 
         {/* Form */}
         <div className="flex-1 w-full">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-5">
+          <h2 className="text-xl sm:text-[36px] font-medium text-[#131313] mb-7">
             Donor information
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-xl font-medium text-[#131313] mb-1">Name</label>
               <input
                 type="text"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               />
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-xl font-medium text-[#131313] mb-1">Email</label>
               <input
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               />
             </div>
 
             {/* Mobile */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+              <label className="block text-xl font-medium text-[#131313] mb-1">Mobile</label>
               <input
                 type="tel"
                 name="mobile"
                 value={form.mobile}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               />
             </div>
 
             {/* Country + City */}
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <label className="block text-xl font-medium text-[#131313] mb-1">Country</label>
                 <input
                   type="text"
                   name="country"
                   value={form.country}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <label className="block text-xl font-medium text-[#131313] mb-1">City</label>
                 <input
                   type="text"
                   name="city"
                   value={form.city}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
             </div>
 
             {/* Donation Amount */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xl font-medium text-[#131313] mb-1">
                 Donation amount
               </label>
               <input
@@ -155,7 +155,7 @@ export default function DonorInformation() {
                 name="donationAmount"
                 value={form.donationAmount}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                className="w-full border bg-transparent border-[#A3A3A3] rounded-[4px] px-3 h-[56px] text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               />
             </div>
 
