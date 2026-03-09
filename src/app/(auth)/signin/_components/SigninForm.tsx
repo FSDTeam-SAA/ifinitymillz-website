@@ -1,16 +1,46 @@
-"use client"
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+import React, { useState, FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function SigninForm() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login submitted");
+    try {
+      setIsLoading(true);
+
+      const res = await signIn("credentials", {
+        email: formData?.email,
+        password: formData?.password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        throw new Error(res?.error);
+      }
+
+      toast.success("Login Successfully !");
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,6 +70,13 @@ function SigninForm() {
                 type="email"
                 id="email"
                 placeholder="hello@example.com"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 required
               />
@@ -58,6 +95,13 @@ function SigninForm() {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12"
                   required
                 />
@@ -97,9 +141,10 @@ function SigninForm() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors shadow-md"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors shadow-md disabled:opacity-50"
             >
-              Log In
+              {isLoading ? "Logging in..." : "Log In"}
             </button>
 
             {/* Sign Up Link */}
