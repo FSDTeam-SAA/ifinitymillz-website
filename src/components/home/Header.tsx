@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
@@ -11,15 +12,28 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 
+const navLinks = [
+  { label: 'Home', href: '#' },
+  { label: 'All campaigns', href: '/all-campaigns' },
+  { label: 'How it works', href: '/how-it-works' },
+  { label: 'FAQs', href: '/faq' },
+];
+
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeHref, setActiveHref] = useState(navLinks[0]?.href ?? '#');
 
-  const navLinks = [
-    { label: 'Home', href: '#' },
-    { label: 'All campaigns', href: '#campaigns' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'FAQs', href: '#faq' },
-  ];
+  useEffect(() => {
+    const setFromHash = () => {
+      const hash = window.location.hash || '#';
+      const next = navLinks.some((link) => link.href === hash) ? hash : '#';
+      setActiveHref(next);
+    };
+
+    setFromHash();
+    window.addEventListener('hashchange', setFromHash);
+    return () => window.removeEventListener('hashchange', setFromHash);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-[#E4F3FF]  ">
@@ -39,7 +53,11 @@ export function Header() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-base font-normal text-[#131313] hover:text-foreground transition-colors"
+                onClick={() => setActiveHref(link.href)}
+                className={cn(
+                  'text-base font-normal text-[#131313] hover:text-foreground transition-colors border-b-2 border-transparent pb-1',
+                  activeHref === link.href && 'text-[#0024DA] border-[#0024DA]'
+                )}
               >
                 {link.label}
               </Link>
@@ -69,7 +87,11 @@ export function Header() {
                   <SheetClose key={link.label} asChild>
                     <Link
                       href={link.href}
-                      className="text-base font-medium text-foreground hover:text-primary transition-colors"
+                      onClick={() => setActiveHref(link.href)}
+                      className={cn(
+                        'text-base font-medium text-foreground hover:text-primary transition-colors border-b-2 border-transparent pb-1',
+                        activeHref === link.href && 'text-[#0024DA] border-[#0024DA]'
+                      )}
                     >
                       {link.label}
                     </Link>

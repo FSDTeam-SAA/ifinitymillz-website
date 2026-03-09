@@ -50,7 +50,7 @@ function SectionTitle({
 }) {
   return (
     <div className="text-center mb-10">
-      <h2 className="text-[30px] sm:text-[38px] lg:text-[48px] font-medium text-foreground">
+      <h2 className="text-[30px] sm:text-[38px] lg:text-[36px] text-[#131313] font-medium ">
         {title}
       </h2>
       {subtitle && (
@@ -153,7 +153,7 @@ function SuccessStories() {
   return (
     <section className="py-14 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
-        <SectionTitle title="Success Stories" />
+        <SectionTitle  title="Success Stories " />
 
         <div className="relative">
           {/* Prev arrow */}

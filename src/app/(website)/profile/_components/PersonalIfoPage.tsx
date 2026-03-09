@@ -52,11 +52,11 @@ export default function PersonalInfoPage() {
 
         {/* ── Top Bar ─────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-center gap-4 relative">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Profile</h1>
+          <h1 className="text-[36px] font-medium text-[#131313] tracking-tight">Profile</h1>
 
           <div className="absolute right-0 flex items-center gap-2">
             {/* Referral donators */}
-            <button className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition">
+            <button className="flex items-center gap-1.5 bg-[#0024DA] hover:bg-[#0024DA]/90 h-[44px] text-white text-sm font-medium px-4 py-2 rounded-[8px] transition">
               <Users className="w-4 h-4" />
               Referral donators
             </button>
@@ -83,19 +83,20 @@ export default function PersonalInfoPage() {
             <p className="text-base font-bold text-gray-900">
               {/* {session?.user?.name || form.fullName} */}
             </p>
+            <p className="text-[#272727] text-xl font-medium">{form.fullName}</p>
             <p className="text-sm text-gray-500">{form.username}</p>
           </div>
 
           {/* Student ID */}
           <div className="flex-1">
-            <p className="text-sm text-gray-500 font-medium">Student unique ID</p>
-            <p className="text-sm text-gray-800 font-semibold mt-0.5">1234875</p>
+            <p className="text-xl text-[#272727] font-medium">Student unique ID</p>
+            <p className="text-sm text-[#595959] font-semibold mt-0.5">1234875</p>
           </div>
 
           {/* Edit button */}
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition ml-auto"
+            className="flex items-center gap-1.5 bg-[#0024DA] hover:bg-[#0024DA]/90 h-[44px] text-white text-sm font-medium px-4 py-2 rounded transition ml-auto"
           >
             <Pencil className="w-3.5 h-3.5" />
             Edit
@@ -106,21 +107,21 @@ export default function PersonalInfoPage() {
         <div className="bg-white rounded-xl shadow-sm px-6 py-6">
           {/* Card header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <h2 className="text-base font-bold text-gray-900">Personal Information</h2>
+            <h2 className="text-xl font-semibold text-[#272727]">Personal Information</h2>
 
             <div className="flex items-center gap-2">
-              <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded transition">
+              <button className="border border-[#595959] hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded transition">
                 Change Password
               </button>
               <button
                 // onClick={() => signOut()}
-                className="border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded transition"
+                className="border border-[#595959] hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded transition"
               >
-                Log Out
+                Log Out 
               </button>
               <button
                 onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition"
+                className="flex items-center gap-1.5 bg-[#0024DA] hover:bg-[#0024DA]/90 h-[40px] text-white text-sm font-medium px-4 py-2 rounded transition"
               >
                 <Pencil className="w-3.5 h-3.5" />
                 {isEditing ? "Save" : "Edit"}
@@ -133,23 +134,23 @@ export default function PersonalInfoPage() {
             {/* Row 1: Full Name + Username */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Full Name</label>
+                <label className="block text-base text-[#323232] mb-1">Full Name</label>
                 <input
                   name="fullName"
                   value={form.fullName}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">User name</label>
+                <label className="block text-base text-[#323232] mb-1">User name</label>
                 <input
                   name="username"
                   value={form.username}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
             </div>
@@ -157,70 +158,70 @@ export default function PersonalInfoPage() {
             {/* Row 2: Email + Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Email</label>
+                <label className="block text-base text-[#323232] mb-1">Email</label>
                 <input
                   name="email"
                   type="email"
                   value={form.email}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Phone number</label>
+                <label className="block text-base text-[#323232] mb-1">Phone number</label>
                 <input
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
             </div>
 
             {/* Row 3: Address (full width) */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Address</label>
+              <label className="block text-base text-[#323232] mb-1">Address</label>
               <input
                 name="address"
                 value={form.address}
                 onChange={handleChange}
                 disabled={!isEditing}
-                className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               />
             </div>
 
             {/* Row 4: City + State + Zip Code */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">City</label>
+                <label className="block text-base text-[#323232] mb-1">City</label>
                 <input
                   name="city"
                   value={form.city}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">State</label>
+                <label className="block text-base text-[#323232] mb-1">State</label>
                 <input
                   name="state"
                   value={form.state}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Zip Code</label>
+                <label className="block text-base text-[#323232] mb-1">Zip Code</label>
                 <input
                   name="zipCode"
                   value={form.zipCode}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-full border border-gray-300 rounded px-3 h-[50px] text-sm text-gray-800 bg-white disabled:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
             </div>

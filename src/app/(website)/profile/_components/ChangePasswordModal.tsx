@@ -31,7 +31,7 @@ export function ChangePasswordModal() {
       <DialogTrigger asChild>
         <button
           //   onClick={() => signOut()}
-          className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded transition"
+          className="flex items-center gap-1.5 bg-[#C90000] hover:bg-[#C90000]/90 text-white text-sm font-medium px-4 h-[44px] rounded-[8px] transition"
         >
           <LogOut className="w-4 h-4" />
           Log out

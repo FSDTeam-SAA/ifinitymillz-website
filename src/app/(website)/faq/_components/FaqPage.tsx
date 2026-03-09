@@ -63,7 +63,7 @@ export default function FaqPage() {
         <div className="flex flex-col lg:flex-row gap-10">
 
           {/* Category Sidebar */}
-          <div className="w-full lg:w-[320px] bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="w-full lg:w-[320px] bg-white rounded-[8px] shadow-sm overflow-hidden">
             {FAQ_CATEGORIES.map((cat) => {
               const isActive = cat.id === activeCategory
               return (
@@ -93,7 +93,7 @@ export default function FaqPage() {
           </div>
 
           {/* FAQ Accordion */}
-          <div className="flex-1 bg-white rounded-2xl shadow-sm px-8 py-6 divide-y">
+          <div className="flex-1 px-8 py-6 divide-y">
             {filteredFaqs.length > 0 ? (
               filteredFaqs.map((item) => {
                 const isOpen = openId === item.id
@@ -134,7 +134,7 @@ export default function FaqPage() {
 
         {/* CTA Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-20">
-          <div className="relative h-56 rounded-2xl overflow-hidden group">
+          <div className="relative h-[326px]  overflow-hidden group">
             <Image
               src="/images/b-success-1.jpg"
               alt="Discover campaigns"
@@ -151,7 +151,7 @@ export default function FaqPage() {
             </div>
           </div>
 
-          <div className="relative h-56 rounded-2xl overflow-hidden group">
+          <div className="relative h-[326px]  overflow-hidden group">
             <Image
               src="/images/b-success-2.jpg"
               alt="Start fundraising"
