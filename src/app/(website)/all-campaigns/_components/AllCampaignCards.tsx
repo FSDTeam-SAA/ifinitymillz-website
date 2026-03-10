@@ -1,112 +1,93 @@
-import { CampaignCard } from "@/components/home/CampaignCard";
+"use client";
+
 // import Link from "next/link";
-import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CampaignCard } from "@/components/home/CampaignCard";
 
-const campaigns = [
-  {
-    id: 1,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 20256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 2,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 24256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 3,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 4,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 5,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 6,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 7,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 8,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 9,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
-  {
-    id: 10,
-    title: "Bringing health to those who need it most",
-    description:
-      "Access to healthcare should be a right, not a privilege. Read more about our efforts to help communities get the care they need.",
-    image: "/images/damoImage.jpg",
-    raised: 53256,
-    goal: 100000,
-    daysLeft: "Expired in 7days",
-  },
+interface Media {
+  url: string;
+}
 
-];
+interface CampaignApi {
+  _id: string;
+  name: string;
+  description: string;
+  media: Media[];
+  totalRaised: number;
+  raiseGoal: string;
+}
 
-function AllCampaignCards() {
+interface CampaignUI {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  raised: number;
+  goal: number;
+  daysLeft?: string;
+}
+
+function CampaignCardSkeleton() {
+  return (
+    <div className="rounded-xl overflow-hidden border border-border">
+      {/* Image */}
+      <Skeleton className="h-48 w-full rounded-none" />
+
+      {/* Content */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <Skeleton className="h-5 w-3/4" />
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+
+        {/* Progress bar */}
+        <Skeleton className="h-2 w-full mt-4" />
+
+        {/* Raised / Goal */}
+        <div className="flex justify-between pt-1">
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+
+        {/* Button */}
+        <Skeleton className="h-10 w-full mt-2" />
+      </div>
+    </div>
+  );
+}
+
+export function AllCampaignCards() {
+  const { data: campaignData, isLoading } = useQuery<CampaignApi[]>({
+    queryKey: ["campaign"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaign`
+      );
+
+      const data = await res.json();
+      return data?.data?.campaigns;
+    },
+  });
+
+  const campaigns: CampaignUI[] =
+    campaignData?.map((item) => ({
+      id: item._id,
+      title: item.name,
+      description: item.description,
+      image:
+        item.media?.length > 0
+          ? item.media[0].url
+          : "/images/damoImage.jpg",
+      raised: item.totalRaised ?? 0,
+      goal: Number(item.raiseGoal) || 0,
+      daysLeft: "Expired in 7days",
+    })) || [];
+
   return (
     <section
       id="campaigns"
@@ -116,18 +97,19 @@ function AllCampaignCards() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-[30px] sm:text-[38px] lg:text-[48px] font-medium text-foreground">
-            All Campaigns
+            Current Campaigns
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-foreground/70">
-            From emergency relief to long-term development projects, your help can make a crucial difference.
+            From emergency relief to long-term development projects, your help
+            can make a crucial difference.
           </p>
         </div>
 
         {/* <div className="flex justify-end items-center mt-10">
           <Link
             href="/all-campaigns"
-            className="text-gray-900 px-6 rounded-md font-medium hover:bg-gray-50 transition-colors text-center whitespace-nowrap "
+            className="text-gray-900 px-6 rounded-md font-medium transition-colors text-center whitespace-nowrap"
           >
             See All
           </Link>
@@ -135,13 +117,15 @@ function AllCampaignCards() {
 
         {/* Campaign Grid */}
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {campaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <CampaignCardSkeleton key={i} />
+              ))
+            : campaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))}
         </div>
       </div>
     </section>
   );
 }
-
-export default AllCampaignCards;

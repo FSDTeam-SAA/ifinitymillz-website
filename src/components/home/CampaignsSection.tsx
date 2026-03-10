@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CampaignCard } from "./CampaignCard";
 import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Media {
   url: string;
@@ -27,6 +28,39 @@ interface CampaignUI {
   daysLeft?: string;
 }
 
+function CampaignCardSkeleton() {
+  return (
+    <div className="rounded-xl overflow-hidden border border-border">
+      {/* Image */}
+      <Skeleton className="h-48 w-full rounded-none" />
+
+      {/* Content */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <Skeleton className="h-5 w-3/4" />
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+
+        {/* Progress bar */}
+        <Skeleton className="h-2 w-full mt-4" />
+
+        {/* Raised / Goal */}
+        <div className="flex justify-between pt-1">
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+
+        {/* Button */}
+        <Skeleton className="h-10 w-full mt-2" />
+      </div>
+    </div>
+  );
+}
+
 export function CampaignsSection() {
   const { data: campaignData, isLoading } = useQuery<CampaignApi[]>({
     queryKey: ["campaign"],
@@ -41,7 +75,7 @@ export function CampaignsSection() {
   });
 
   const campaigns: CampaignUI[] =
-    campaignData?.map((item) => ({
+    campaignData?.slice(0, 3).map((item) => ({
       id: item._id,
       title: item.name,
       description: item.description,
@@ -75,7 +109,7 @@ export function CampaignsSection() {
         <div className="flex justify-end items-center mt-10">
           <Link
             href="/all-campaigns"
-            className="text-gray-900 px-6 rounded-md font-medium  transition-colors text-center whitespace-nowrap"
+            className="text-gray-900 px-6 rounded-md font-medium transition-colors text-center whitespace-nowrap"
           >
             See All
           </Link>
@@ -84,7 +118,9 @@ export function CampaignsSection() {
         {/* Campaign Grid */}
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {isLoading
-            ? "Loading..."
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <CampaignCardSkeleton key={i} />
+              ))
             : campaigns.map((campaign) => (
                 <CampaignCard key={campaign.id} campaign={campaign} />
               ))}

@@ -10,7 +10,7 @@ export function Footer() {
 
         {/* Main Footer Content */}
         <div className="py-14 sm:py-16">
-          <div className="flex justify-between">
+          <div className="lg:flex justify-between">
 
             {/* Company Info */}
             <div className="flex flex-col max-w-xl">
@@ -32,7 +32,7 @@ export function Footer() {
             </div>
 
             {/* Quick Links */}
-            <div className="flex flex-col">
+            <div className="flex flex-col mt-5 lg:mt-0 ">
               <h3 className="font-semibold text-foreground mb-5">
                 Quick Links
               </h3>
@@ -58,7 +58,7 @@ export function Footer() {
             </div>
 
             {/* Contact Us */}
-            <div className="flex flex-col">
+            <div className="flex flex-col mt-5 lg:mt-0">
               <h3 className="font-semibold text-foreground mb-5">
                 Contact Us
               </h3>

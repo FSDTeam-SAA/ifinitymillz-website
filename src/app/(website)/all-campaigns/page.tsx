@@ -1,6 +1,6 @@
 import React from 'react'
 import CampaignsHero from './_components/CampaignsHero'
-import AllCampaignCards from './_components/AllCampaignCards'
+import { AllCampaignCards } from './_components/AllCampaignCards'
 
 function page() {
   return (
