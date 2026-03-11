@@ -40,7 +40,7 @@ export function Header() {
           headers: {
             Authorization: `Bearer ${TOKEN}`,
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -66,7 +66,6 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-[#E4F3FF]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-[90px] items-center justify-between">
-
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-[50px] w-[50px] items-center justify-center rounded-lg bg-primary">
@@ -86,7 +85,7 @@ export function Header() {
                 onClick={() => setActiveHref(link.href)}
                 className={cn(
                   "text-base font-normal text-[#131313] hover:text-foreground transition-colors border-b-2 border-transparent pb-1",
-                  activeHref === link.href && "text-[#0024DA] border-[#0024DA]"
+                  activeHref === link.href && "text-[#0024DA] border-[#0024DA]",
                 )}
               >
                 {link.label}
@@ -116,12 +115,14 @@ export function Header() {
               </Link>
             )}
 
-            <Button
-              size="sm"
-              className="bg-[#0024DA] hover:bg-[#0024DA]/90 text-base font-normal leading-[150%] h-[48px]"
-            >
-              Start fundraising
-            </Button>
+            <Link href="/all-campaigns">
+              <Button
+                size="sm"
+                className="bg-[#0024DA] hover:bg-[#0024DA]/90 text-base font-normal leading-[150%] h-[48px]"
+              >
+                Start fundraising
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -134,7 +135,6 @@ export function Header() {
 
             <SheetContent side="right" className="w-[300px]">
               <nav className="flex flex-col gap-4 mt-8 text-base font-normal leading-[150%]">
-
                 {navLinks.map((link) => (
                   <SheetClose key={link.label} asChild>
                     <Link
@@ -143,7 +143,7 @@ export function Header() {
                       className={cn(
                         "text-base font-medium text-foreground hover:text-primary transition-colors border-b-2 border-transparent pb-1",
                         activeHref === link.href &&
-                          "text-[#0024DA] border-[#0024DA]"
+                          "text-[#0024DA] border-[#0024DA]",
                       )}
                     >
                       {link.label}
@@ -152,11 +152,9 @@ export function Header() {
                 ))}
 
                 <div className="mt-6 flex flex-col gap-3 border-t pt-6">
-
                   {status === "authenticated" ? (
                     <Link href="/profile">
                       <div className="flex items-center gap-3">
-
                         <div className="h-10 w-10 rounded-full overflow-hidden">
                           <Image
                             src={profileImage}
@@ -168,7 +166,6 @@ export function Header() {
                         </div>
 
                         <span>{me?.name}</span>
-
                       </div>
                     </Link>
                   ) : (
@@ -177,10 +174,11 @@ export function Header() {
                     </Link>
                   )}
 
-                  <Button className="w-full bg-primary hover:bg-primary/90">
-                    Start fundraising
-                  </Button>
-
+                  <Link href="/all-campaigns">
+                    <Button className="w-full bg-primary hover:bg-primary/90">
+                      Start fundraising
+                    </Button>
+                  </Link>
                 </div>
               </nav>
             </SheetContent>

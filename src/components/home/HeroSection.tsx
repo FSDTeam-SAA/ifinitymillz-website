@@ -21,7 +21,7 @@ export function HeroSection() {
               and impactful.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link href="/donor-information">
+              <Link href="/all-campaigns">
                 <Button
                   size="lg"
                   className="bg-[#7DBAED] hover:bg-[#7DBAED]/90 gap-3 rounded-full px-6 h-[51px] text-white text-base font-semibold"

@@ -42,7 +42,7 @@ interface CampaignApiResponse {
   donations: Donor[];
 }
 
-type Tab = "story" | "updates" | "donors";
+type Tab = "story" | "donors";
 
 function ViewCampaignSkeleton() {
   return (
@@ -153,7 +153,7 @@ export function ViewCampaings() {
   const story = apiData?.description ?? "";
   const storyPreview = story.slice(0, 320);
 
-  const students = apiData?.students ?? [];
+  // const students = apiData?.students ?? [];
   const donations = apiData?.donations ?? [];
 
   const topDonors = [...donations]
@@ -182,8 +182,8 @@ export function ViewCampaings() {
           {/* Left Column */}
           <div className="flex-1 min-w-0">
             {/* Tabs */}
-            <div className="flex border-b border-gray-200 mb-5 justify-between px-10">
-              {(["story", "updates", "donors"] as Tab[]).map((tab) => (
+            <div className="flex border-b border-gray-200 mb-5 gap-10">
+              {(["story", "donors"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -287,42 +287,6 @@ export function ViewCampaings() {
                   </div>
                 </div>
 
-                {/* Students */}
-                {students.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-base font-semibold text-gray-900 mb-3">
-                      Students ({students.length})
-                    </h3>
-                    <div className="space-y-3">
-                      {students.map((student) => (
-                        <div
-                          key={student.studentId}
-                          className="border border-[#ACACAC] rounded-xl px-4 py-3 flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold flex-shrink-0">
-                              {student.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {student.name}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                {student.email}
-                              </p>
-                            </div>
-                          </div>
-                          {student.raisedAmount > 0 && (
-                            <p className="text-sm font-semibold text-blue-600">
-                              $ {student.raisedAmount.toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Top Donors */}
                 {topDonors.length > 0 && (
                   <div>
@@ -370,11 +334,11 @@ export function ViewCampaings() {
               </div>
             )}
 
-            {activeTab === "updates" && (
+            {/* {activeTab === "updates" && (
               <div className="text-center py-16 text-gray-400 text-sm">
                 No updates yet.
               </div>
-            )}
+            )} */}
 
             {/* Donors Tab */}
             {activeTab === "donors" && (

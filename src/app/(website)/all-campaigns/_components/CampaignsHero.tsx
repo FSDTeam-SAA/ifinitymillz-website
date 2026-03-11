@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 function CampaignsHero() {
@@ -35,15 +36,18 @@ function CampaignsHero() {
         </div>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            size="lg"
-            className="bg-[#003E59] hover:bg-[#003E59]/90 gap-3 rounded-full px-6 h-[51px] text-white text-base font-semibold"
-          >
-            Get started
-            <span className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-full">
-              <ArrowRight  className="h-4 w-4" />
-            </span>
-          </Button>
+          
+          <Link href="/how-it-works">
+            <Button
+              size="lg"
+              className="bg-[#003E59] hover:bg-[#003E59]/90 gap-3 rounded-full px-6 h-[51px] text-white text-base font-semibold"
+            >
+              Get started
+              <span className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-full">
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

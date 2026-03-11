@@ -35,7 +35,7 @@ function SigninForm() {
       }
 
       toast.success("Login Successfully! 🎉");
-      router.push("/");
+      router.push("/profile");
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -52,7 +52,7 @@ function SigninForm() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome</h1>
             <p className="text-gray-600">
-              Sign in to oversee accounts, listings, and updates.
+              Signin Only for registered student !
             </p>
           </div>
 
@@ -148,7 +148,7 @@ function SigninForm() {
             </button>
 
             {/* Sign Up Link */}
-            <div className="text-center text-sm text-gray-600">
+            {/* <div className="text-center text-sm text-gray-600">
               Don&apos;t have an account?{" "}
               <a
                 href="#"
@@ -156,7 +156,7 @@ function SigninForm() {
               >
                 Sign Up
               </a>
-            </div>
+            </div> */}
           </form>
         </div>
       </div>
