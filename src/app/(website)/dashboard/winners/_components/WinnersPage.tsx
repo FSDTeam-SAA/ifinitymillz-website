@@ -10,10 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface ResultEntry {
   campaignTitle: string;
@@ -55,6 +56,7 @@ function WinnersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const session = useSession();
   const TOKEN = session?.data?.user?.accessToken;
+  // const queryClient = useQueryClient();
 
   const { data: resultsData, isLoading } = useQuery<ResultEntry[]>({
     queryKey: ["winners"],
@@ -68,7 +70,7 @@ function WinnersPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${TOKEN}`,
           },
-        }
+        },
       );
       const json = await res.json();
       if (!res.ok || !json?.status) {
@@ -78,11 +80,38 @@ function WinnersPage() {
     },
   });
 
+  // const withdrawMutation = useMutation({
+  //   mutationFn: async (campaignTitle: string) => {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/withdraw`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${TOKEN}`,
+  //         },
+  //         body: JSON.stringify({ campaignTitle }),
+  //       },
+  //     );
+  //     const json = await res.json();
+  //     if (!res.ok || !json?.status) {
+  //       throw new Error(json?.message || "Withdraw failed");
+  //     }
+  //     return json;
+  //   },
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["winners"] });
+  //   },
+  //   onError: (error: Error) => {
+  //     alert(error.message || "Something went wrong.");
+  //   },
+  // });
+
   const allResults: ResultEntry[] = resultsData ?? [];
   const totalPages = Math.max(1, Math.ceil(allResults.length / PAGE_SIZE));
   const paginated = allResults.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
 
   const getPageNumbers = () => {
@@ -95,7 +124,7 @@ function WinnersPage() {
     <div className="min-h-screen">
       {/* Title */}
       <h1 className="text-white text-[24px] font-bold mb-8 leading-[120%]">
-        Winners / Draw Results
+        Participation Summary
       </h1>
 
       {isLoading ? (
@@ -110,14 +139,15 @@ function WinnersPage() {
               <TableHeader>
                 <TableRow className="bg-[#e8b84b] hover:bg-[#e8b84b] border-0">
                   {[
-                    "Campaign",
+                    "Prize Title",
                     "Your Tickets",
-                    "Winning Ticket",
-                    "Winner Name",
-                    "Result",
-                  ].map((col) => (
+                    "Winner Ticket",
+                    "Results",
+                    "Results",
+                    "Draw Date",
+                  ].map((col, i) => (
                     <TableHead
-                      key={col}
+                      key={`${col}-${i}`}
                       className="text-[#1F1F1F] text-base text-center py-4 font-medium whitespace-nowrap"
                     >
                       {col}
@@ -127,75 +157,88 @@ function WinnersPage() {
               </TableHeader>
 
               <TableBody>
-                {paginated.map((entry, index) => (
-                  <TableRow
-                    key={`${entry.campaignTitle}-${index}`}
-                    className={`border-b border-[#222222] hover:bg-[#1e1e1e] transition-colors ${
-                      index % 2 === 0 ? "bg-[#161616]" : "bg-[#131313]"
-                    }`}
-                  >
-                    {/* Campaign */}
-                    <TableCell className="py-4 text-center">
-                      <div className="flex items-center gap-3 justify-center">
-                        <PrizeThumbnail
-                          image={entry.prizeImage}
-                          title={entry.campaignTitle}
-                        />
-                        <span className="text-[#C9C9C9] text-base font-medium whitespace-nowrap">
-                          {entry.campaignTitle}
-                        </span>
-                      </div>
-                    </TableCell>
+                {paginated.map((entry, index) => {
+                  const drawDate = "Oct 12, 2023"; // replace with real drawDate if API provides it
 
-                    {/* Your Tickets */}
-                    <TableCell className="text-center py-4">
-                      <div className="flex flex-wrap gap-1 justify-center max-w-[200px] mx-auto">
-                        {(entry.yourTickets || []).map((ticket) => (
-                          <span
-                            key={ticket}
-                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                              ticket === entry.winnerTicket
-                                ? "bg-[#1a3a2a] text-[#3dba6f] border border-[#2a5a3a]"
-                                : "bg-[#2a2a2a] text-[#888]"
-                            }`}
-                          >
-                            {ticket}
+                  return (
+                    <TableRow
+                      key={`${entry.campaignTitle}-${index}`}
+                      className={`border-b border-[#222222] hover:bg-[#1e1e1e] transition-colors ${
+                        index % 2 === 0 ? "bg-[#161616]" : "bg-[#131313]"
+                      }`}
+                    >
+                      {/* Prize Title */}
+                      <TableCell className="py-4 text-center">
+                        <div className="flex items-center gap-3 justify-center">
+                          <PrizeThumbnail
+                            image={entry.prizeImage}
+                            title={entry.campaignTitle}
+                          />
+                          <span className="text-[#C9C9C9] text-base font-medium whitespace-nowrap">
+                            {entry.campaignTitle}
                           </span>
-                        ))}
-                      </div>
-                    </TableCell>
+                        </div>
+                      </TableCell>
 
-                    {/* Winning Ticket */}
-                    <TableCell className="text-center py-4">
-                      <span className="text-[#c9a84c] text-base font-semibold">
-                        {entry.winnerTicket}
-                      </span>
-                    </TableCell>
+                      {/* Your Tickets */}
+                      <TableCell className="text-center py-4">
+                        <div className="flex items-center gap-2 justify-center">
+                          <span className="text-[#C9C9C9] text-sm font-medium">
+                            {entry.yourTickets?.length ?? 0} Tickets
+                          </span>
+                          <button className="text-[#e8b84b] hover:text-[#c9a84c] transition-colors">
+                            <Eye size={15} />
+                          </button>
+                        </div>
+                      </TableCell>
 
-                    {/* Winner Name */}
-                    <TableCell className="text-[#aaaaaa] text-base text-center py-4 whitespace-nowrap">
-                      {entry.winnerName || "—"}
-                    </TableCell>
+                      {/* Winner Ticket */}
+                      <TableCell className="text-center py-4">
+                        <span className="text-[#c9a84c] text-base font-semibold">
+                          {entry.winnerTicket}
+                        </span>
+                      </TableCell>
 
-                    {/* Result */}
-                    <TableCell className="text-center py-4">
-                      <span
-                        className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold border ${
-                          entry.isWinner
-                            ? "bg-[#1a3a2a] text-[#3dba6f] border-[#2a5a3a]"
-                            : "bg-[#2a1a1a] text-[#e05555] border-[#4a2a2a]"
-                        }`}
-                      >
-                        {entry.result}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      {/* Result badge (Won / Lost) */}
+                      <TableCell className="text-center py-4">
+                        <span
+                          className={`inline-flex items-center px-4 py-1 rounded-full text-xs font-semibold ${
+                            entry.isWinner
+                              ? "bg-[#e8b84b] text-[#1a1100]"
+                              : "bg-[#2a2a2a] text-[#888888]"
+                          }`}
+                        >
+                          {entry.result}
+                        </span>
+                      </TableCell>
+
+                      {/* Withdraw button (only if won) */}
+                      <TableCell className="text-center py-4">
+                        {entry.isWinner && (
+                          <Link href={`/dashboard/winners`}>
+                            <button
+                              
+                              
+                              className="inline-flex items-center px-4 py-1 rounded-full text-xs font-semibold bg-[#1a3a2a] text-[#3dba6f] border border-[#2a5a3a] hover:bg-[#1f4a33] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Withdraw
+                            </button>
+                          </Link>
+                        )}
+                      </TableCell>
+
+                      {/* Draw Date */}
+                      <TableCell className="text-[#aaaaaa] text-sm text-center py-4 whitespace-nowrap">
+                        {drawDate}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
 
                 {paginated.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="text-center text-[#555] py-12 text-sm"
                     >
                       No results found.
@@ -238,7 +281,9 @@ function WinnersPage() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="w-9 h-9 rounded-md bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white disabled:opacity-30"
               >
