@@ -1,176 +1,116 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
-interface Campaign {
-  id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-  entry: number;
-  endsIn: string;
-  progress: number;
+interface Package {
+  name: string;
+  ticketQuantity: number;
+  price: number;
+  _id: string;
 }
 
-const ALL_CAMPAIGNS: Campaign[] = [
-  {
-    id: 1,
-    title: "The Vanguard Timepiece",
-    subtitle: "Limited Edition Horology",
-    image:
-      "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&q=80",
-    entry: 2,
-    endsIn: "05d : 11h",
-    progress: 62,
-  },
-  {
-    id: 2,
-    title: "Creator Suite 2024",
-    subtitle: "Ultimate Creative Workstation",
-    image:
-      "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800&q=80",
-    entry: 8,
-    endsIn: "03d : 08h",
-    progress: 48,
-  },
-  {
-    id: 3,
-    title: "Gala Night in Paris",
-    subtitle: "VIP Invitation & Luxury Stay",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-    entry: 15,
-    endsIn: "12d : 19h",
-    progress: 78,
-  },
-  {
-    id: 4,
-    title: "Alpine Ski Getaway",
-    subtitle: "Premium Mountain Experience",
-    image:
-      "https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?w=800&q=80",
-    entry: 5,
-    endsIn: "07d : 04h",
-    progress: 35,
-  },
-  {
-    id: 5,
-    title: "Grand Piano Edition",
-    subtitle: "Concert Grade Instrument",
-    image:
-      "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80",
-    entry: 10,
-    endsIn: "09d : 22h",
-    progress: 55,
-  },
-  {
-    id: 6,
-    title: "Riviera Yacht Weekend",
-    subtitle: "Exclusive Maritime Escape",
-    image:
-      "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&q=80",
-    entry: 20,
-    endsIn: "14d : 06h",
-    progress: 90,
-  },
-  {
-    id: 7,
-    title: "Michelin Star Dining",
-    subtitle: "Chef's Table for Two",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-    entry: 3,
-    endsIn: "02d : 15h",
-    progress: 70,
-  },
-  {
-    id: 8,
-    title: "Tesla Model 3 Performance",
-    subtitle: "Zero Emission. Full Luxury.",
-    image:
-      "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=800&q=80",
-    entry: 25,
-    endsIn: "20d : 11h",
-    progress: 42,
-  },
-  {
-    id: 9,
-    title: "Safari Adventure Kenya",
-    subtitle: "7 Night Wildlife Expedition",
-    image:
-      "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80",
-    entry: 12,
-    endsIn: "18d : 03h",
-    progress: 28,
-  },
-];
+interface Campaign {
+  _id: string;
+  id: string;
+  title: string;
+  description: string;
+  prizeImage: string;
+  totalTickets: number;
+  soldTickets: number;
+  remainingTickets: number;
+  packages: Package[];
+  startDate: string;
+  endDate: string;
+  status: string;
+  isFeatured: boolean;
+}
 
-const PAGE_SIZE = 6;
+interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: Campaign[];
+}
+
+function getEndsIn(endDate: string): string {
+  const end = new Date(endDate);
+  const now = new Date();
+  let diff = Math.max(0, end.getTime() - now.getTime());
+  const days = Math.floor(diff / 86400000);
+  diff -= days * 86400000;
+  const hours = Math.floor(diff / 3600000);
+  return `${String(days).padStart(2, "0")}d : ${String(hours).padStart(2, "0")}h`;
+}
+
+function getMinPrice(packages: Package[]): number {
+  if (!packages?.length) return 0;
+  return Math.min(...packages.map((p) => p.price));
+}
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
+  const soldPct = Math.round((campaign.soldTickets / campaign.totalTickets) * 100);
+  const minPrice = getMinPrice(campaign.packages);
+
   return (
-    <div className="flex flex-col bg-[#111111] border border-[#1e1e1e] overflow-hidden group">
+    <div className="relative flex flex-col bg-[#111111] border border-[#222222] overflow-hidden group">
       {/* Image */}
-      <div className="relative h-64 overflow-hidden shrink-0">
+      <div className="relative h-56 overflow-hidden">
         <Image
           width={400}
           height={400}
-          src={campaign.image}
+          src={campaign.prizeImage}
           alt={campaign.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#11111140] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
       </div>
 
       {/* Body */}
-      <div className="flex flex-col gap-5 p-6 flex-1">
-        {/* Title */}
-        <div className="flex flex-col gap-1">
-          <h3 className="text-white text-2xl font-bold leading-tight">
+      <div className="flex flex-col gap-3 p-5 flex-1">
+        <div>
+          <h3 className="text-white text-xl font-bold leading-tight mb-1">
             {campaign.title}
           </h3>
-          <p className="text-[#555555] text-[10px] tracking-[0.18em] uppercase">
-            {campaign.subtitle}
+          <p className="text-[#666666] text-[10px] tracking-[0.15em] uppercase">
+            {campaign.description}
           </p>
         </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Entry / Ends in */}
-        <div className="flex items-end justify-between">
+        {/* Entry / Ends In */}
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[#555555] text-[9px] tracking-[0.2em] uppercase mb-1">
-              Entry
+            <p className="text-[#555555] text-[9px] tracking-widest uppercase mb-1">
+              Entry From
             </p>
-            <p className="text-[#c9a84c] text-2xl font-bold leading-none">
-              ${campaign.entry}
-            </p>
+            <p className="text-[#c9a84c] text-xl font-bold">${minPrice}</p>
           </div>
           <div className="text-right">
-            <p className="text-[#555555] text-[9px] tracking-[0.2em] uppercase mb-1">
+            <p className="text-[#555555] text-[9px] tracking-widest uppercase mb-1">
               Ends In
             </p>
             <p className="text-white text-sm font-semibold">
-              {campaign.endsIn}
+              {getEndsIn(campaign.endDate)}
             </p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-[2px] bg-[#1e1e1e]">
+        <div className="w-full h-[2px] bg-[#222222] rounded-full">
           <div
-            className="h-full bg-[#c9a84c]"
-            style={{ width: `${campaign.progress}%` }}
+            className="h-full bg-[#c9a84c] rounded-full"
+            style={{ width: `${soldPct}%` }}
           />
         </div>
+        <p className="text-[#555555] text-[9px] tracking-widest uppercase">
+          {campaign.soldTickets}/{campaign.totalTickets} tickets sold
+        </p>
 
         {/* Button */}
         <Link
-          href={`/winners-details/${campaign.id}`}
-          className="w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-4 hover:bg-[#c9a84c] hover:text-black hover:border-[#c9a84c] transition-all duration-300"
+          href={`/campaigns/${campaign.id}`}
+          className="mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-3 hover:bg-[#c9a84c] hover:text-black hover:border-[#c9a84c] transition-all duration-300"
         >
           Enter Now
         </Link>
@@ -179,42 +119,65 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
   );
 }
 
-function CampaignGrid() {
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const total = ALL_CAMPAIGNS.length;
-  const shown = ALL_CAMPAIGNS.slice(0, visibleCount);
-  const hasMore = visibleCount < total;
+function Campaigns() {
+  const { data: activeData, isLoading } = useQuery<ApiResponse>({
+    queryKey: ["active"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/public?status=Active`
+      );
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
+  const campaigns = activeData?.data ?? [];
 
   return (
-    <section className="w-full bg-[#0d0d0d] py-16 px-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-10">
+    <section className="w-full bg-[#0d0d0d] py-16 px-8 h-screen">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-[#c9a84c] text-[10px] tracking-[0.2em] uppercase mb-2">
+              Editor&apos;s Choice
+            </p>
+            <h2 className="text-white text-4xl font-serif font-bold">
+              Active Campaigns
+            </h2>
+          </div>
+          {/* <Link
+            href="/campaigns"
+            className="text-[#666666] text-xs hover:text-[#c9a84c] transition-colors"
+          >
+            View all {campaigns.length} active campaigns
+          </Link> */}
+        </div>
+
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {shown.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
-
-        {/* Viewing indicator + Load more */}
-        <div className="flex flex-col items-center gap-5">
-          <p className="text-[#444444] text-[10px] tracking-[0.25em] uppercase">
-            Viewing {Math.min(visibleCount, total)} of {total} Campaigns
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-[420px] bg-[#111111] border border-[#222222] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : campaigns.length === 0 ? (
+          <p className="text-[#555555] text-sm text-center py-16">
+            No active campaigns at the moment.
           </p>
-
-          {hasMore && (
-            <button
-              onClick={() =>
-                setVisibleCount((c) => Math.min(c + PAGE_SIZE, total))
-              }
-              className="border border-[#2a2a2a] bg-[#111111] text-white text-[10px] font-bold tracking-[0.2em] uppercase px-10 py-4 hover:bg-[#c9a84c] hover:text-black hover:border-[#c9a84c] transition-all duration-300"
-            >
-              Load More
-            </button>
-          )}
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {campaigns.map((campaign) => (
+              <CampaignCard key={campaign._id} campaign={campaign} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-export default CampaignGrid;
+export default Campaigns;

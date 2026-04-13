@@ -11,8 +11,12 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
       },
       {
+        protocol: "http", // 👈 add this
+        hostname: "res.cloudinary.com",
+      },
+      {
         protocol: "https",
-        hostname: "images.unsplash.com", // ✅ add this
+        hostname: "images.unsplash.com",
       },
     ],
   },

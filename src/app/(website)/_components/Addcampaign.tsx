@@ -3,59 +3,64 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
-interface Campaign {
-  id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-  entry: number;
-  endsIn: string;
-  progress: number;
+interface Package {
+  name: string;
+  ticketQuantity: number;
+  price: number;
+  _id: string;
 }
 
-const DUMMY_CAMPAIGNS: Campaign[] = [
-  {
-    id: 1,
-    title: "The Vanguard Timepiece",
-    subtitle: "Limited Edition Horology",
-    image:
-      "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&q=80",
-    entry: 2,
-    endsIn: "05d : 11h",
-    progress: 65,
-  },
-  {
-    id: 2,
-    title: "Creator Suite 2024",
-    subtitle: "Ultimate Creative Workstation",
-    image:
-      "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&q=80",
-    entry: 8,
-    endsIn: "03d : 08h",
-    progress: 45,
-  },
-  {
-    id: 3,
-    title: "Gala Night in Paris",
-    subtitle: "VIP Invitation & Luxury Stay",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
-    entry: 15,
-    endsIn: "12d : 19h",
-    progress: 80,
-  },
-];
+interface Campaign {
+  _id: string;
+  id: string;
+  title: string;
+  description: string;
+  prizeImage: string;
+  totalTickets: number;
+  soldTickets: number;
+  remainingTickets: number;
+  packages: Package[];
+  startDate: string;
+  endDate: string;
+  status: string;
+  isFeatured: boolean;
+}
+
+interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: Campaign[];
+}
+
+function getEndsIn(endDate: string): string {
+  const end = new Date(endDate);
+  const now = new Date();
+  let diff = Math.max(0, end.getTime() - now.getTime());
+  const days = Math.floor(diff / 86400000);
+  diff -= days * 86400000;
+  const hours = Math.floor(diff / 3600000);
+  return `${String(days).padStart(2, "0")}d : ${String(hours).padStart(2, "0")}h`;
+}
+
+function getMinPrice(packages: Package[]): number {
+  if (!packages?.length) return 0;
+  return Math.min(...packages.map((p) => p.price));
+}
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
+  const soldPct = Math.round((campaign.soldTickets / campaign.totalTickets) * 100);
+  const minPrice = getMinPrice(campaign.packages);
+
   return (
     <div className="relative flex flex-col bg-[#111111] border border-[#222222] overflow-hidden group">
       {/* Image */}
       <div className="relative h-56 overflow-hidden">
         <Image
-        width={400}
-        height={400}
-          src={campaign.image}
+          width={400}
+          height={400}
+          src={campaign.prizeImage}
           alt={campaign.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
@@ -69,7 +74,7 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
             {campaign.title}
           </h3>
           <p className="text-[#666666] text-[10px] tracking-[0.15em] uppercase">
-            {campaign.subtitle}
+            {campaign.description}
           </p>
         </div>
 
@@ -77,15 +82,17 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[#555555] text-[9px] tracking-widest uppercase mb-1">
-              Entry
+              Entry From
             </p>
-            <p className="text-[#c9a84c] text-xl font-bold">${campaign.entry}</p>
+            <p className="text-[#c9a84c] text-xl font-bold">${minPrice}</p>
           </div>
           <div className="text-right">
             <p className="text-[#555555] text-[9px] tracking-widest uppercase mb-1">
               Ends In
             </p>
-            <p className="text-white text-sm font-semibold">{campaign.endsIn}</p>
+            <p className="text-white text-sm font-semibold">
+              {getEndsIn(campaign.endDate)}
+            </p>
           </div>
         </div>
 
@@ -93,9 +100,12 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
         <div className="w-full h-[2px] bg-[#222222] rounded-full">
           <div
             className="h-full bg-[#c9a84c] rounded-full"
-            style={{ width: `${campaign.progress}%` }}
+            style={{ width: `${soldPct}%` }}
           />
         </div>
+        <p className="text-[#555555] text-[9px] tracking-widest uppercase">
+          {campaign.soldTickets}/{campaign.totalTickets} tickets sold
+        </p>
 
         {/* Button */}
         <Link
@@ -110,6 +120,19 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
 }
 
 function ActiveCampaigns() {
+  const { data: activeData, isLoading } = useQuery<ApiResponse>({
+    queryKey: ["active"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/public?status=Active`
+      );
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
+  const campaigns = activeData?.data.slice(0,3) ?? [];
+
   return (
     <section className="w-full bg-[#0d0d0d] py-16 px-8">
       <div className="max-w-6xl mx-auto">
@@ -127,16 +150,31 @@ function ActiveCampaigns() {
             href="/campaigns"
             className="text-[#666666] text-xs hover:text-[#c9a84c] transition-colors"
           >
-            View all 12 active campaigns
+            View all {campaigns.length} active campaigns
           </Link>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {DUMMY_CAMPAIGNS.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-[420px] bg-[#111111] border border-[#222222] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : campaigns.length === 0 ? (
+          <p className="text-[#555555] text-sm text-center py-16">
+            No active campaigns at the moment.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {campaigns.map((campaign) => (
+              <CampaignCard key={campaign._id} campaign={campaign} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

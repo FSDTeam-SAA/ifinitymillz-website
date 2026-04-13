@@ -2,6 +2,8 @@
 
 import React, { useRef, useState } from "react";
 import { FileText } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface FormData {
   fullName: string;
@@ -43,7 +45,6 @@ function ApplyForCampaign() {
   });
 
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -65,12 +66,62 @@ function ApplyForCampaign() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setSubmitting(false);
-    alert("Application submitted successfully!");
-  };
+  const applyMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+
+      // Text fields
+      formData.append("fullName", form.fullName);
+      formData.append("brandName", form.brandName);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      formData.append("country", form.country);
+      formData.append("socialMedia", form.socialMedia);
+      formData.append("audienceSize", form.audienceSize);
+      formData.append("campaignIdea", form.campaignIdea);
+      formData.append("whyFeature", form.whyFeatures);
+
+      // Files under "document" key
+      files.forEach((file) => {
+        formData.append("document", file.raw);
+      });
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/applications`,
+        {
+          method: "POST",
+          body: formData,
+          // Note: Content-Type header set korben na,
+          // browser automatically multipart/form-data set kore boundary sহ
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Submission failed");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Application submitted successfully!");
+      setForm({
+        fullName: "",
+        brandName: "",
+        email: "",
+        phone: "",
+        country: "",
+        socialMedia: "",
+        audienceSize: "",
+        campaignIdea: "",
+        whyFeatures: "",
+      });
+      setFiles([]);
+    },
+    onError: (error: Error) => {
+      toast.success(error.message || "Something went wrong. Please try again.");
+    },
+  });
 
   const inputClass =
     "w-full bg-[#1e1e1e] border border-[#2a2a2a] text-white text-sm px-4 py-3 outline-none placeholder:text-[#555555] focus:border-[#c9a84c] transition-colors";
@@ -220,7 +271,9 @@ function ApplyForCampaign() {
                   <div className="w-14 h-14 bg-[#3b82f6] rounded-full flex items-center justify-center">
                     <FileText size={24} className="text-white" />
                   </div>
-                  <span className="text-[#888888] text-[10px]">{file.size}</span>
+                  <span className="text-[#888888] text-[10px] max-w-[56px] truncate">
+                    {file.size}
+                  </span>
                 </div>
               ))}
 
@@ -245,11 +298,11 @@ function ApplyForCampaign() {
 
           {/* Submit */}
           <button
-            onClick={handleSubmit}
-            disabled={submitting}
+            onClick={() => applyMutation.mutate()}
+            disabled={applyMutation.isPending}
             className="w-full bg-[#c9a84c] text-black text-[11px] font-black tracking-[0.25em] uppercase py-4 hover:bg-[#b8963f] transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-2"
           >
-            {submitting ? "Submitting..." : "Submit"}
+            {applyMutation.isPending ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>

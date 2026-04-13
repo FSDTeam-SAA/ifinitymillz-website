@@ -53,6 +53,29 @@ function RecentVictories() {
 
   const shown = VICTORIES.slice(startIndex, startIndex + visible);
 
+
+  // const { data: resultsData, isLoading } = useQuery<ResultEntry[]>({
+  //   queryKey: ["winners"],
+  //   enabled: !!TOKEN,
+  //   queryFn: async () => {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/results`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${TOKEN}`,
+  //         },
+  //       }
+  //     );
+  //     const json = await res.json();
+  //     if (!res.ok || !json?.status) {
+  //       throw new Error(json?.message || "Failed to fetch results");
+  //     }
+  //     return json.data;
+  //   },
+  // });
+
   return (
     <section className="w-full bg-[#0a0a0a] py-20 px-8">
       <div className="max-w-6xl mx-auto">

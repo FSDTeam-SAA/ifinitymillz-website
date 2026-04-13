@@ -66,7 +66,7 @@ function TheProcess() {
           while giving participants a chance to win.
         </p>
         <Link
-          href="/apply"
+          href="/apply-campaign"
           className="inline-block bg-[#c9a84c] text-black text-xs font-bold tracking-[0.15em] uppercase px-10 py-4 hover:bg-[#b8963f] transition-colors"
         >
           Apply For Campaign

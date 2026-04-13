@@ -2,42 +2,78 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+
+interface CampaignData {
+  title: string;
+  description: string;
+  totalTickets: number;
+  soldTickets: number;
+  remainingTickets: number;
+  endDate: string;
+  prizeImage: string;
+  status: string;
+}
+
+interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: CampaignData;
+}
 
 function HomeHero() {
   const [timeLeft, setTimeLeft] = useState({
-    days: 12,
-    hours: 4,
-    mins: 29,
+    days: 0,
+    hours: 0,
+    mins: 0,
   });
 
+  const { data: heroData, isLoading } = useQuery<ApiResponse>({
+    queryKey: ["hero"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/public?status=featured`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
+  const campaign = heroData?.data;
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { days, hours, mins } = prev;
-        mins--;
-        if (mins < 0) { mins = 59; hours--; }
-        if (hours < 0) { hours = 23; days--; }
-        if (days < 0) { days = 0; hours = 0; mins = 0; }
-        return { days, hours, mins };
-      });
-    }, 60000);
+    if (!campaign?.endDate) return;
+
+    const calculateTimeLeft = () => {
+      const end = new Date(campaign.endDate);
+      const now = new Date();
+      let diff = Math.max(0, end.getTime() - now.getTime());
+
+      const days = Math.floor(diff / 86400000);
+      diff -= days * 86400000;
+      const hours = Math.floor(diff / 3600000);
+      diff -= hours * 3600000;
+      const mins = Math.floor(diff / 60000);
+
+      setTimeLeft({ days, hours, mins });
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [campaign?.endDate]);
 
   const pad = (n: number) => String(n).padStart(2, "0");
+
+  const soldPct = campaign
+    ? Math.round((campaign.soldTickets / campaign.totalTickets) * 100)
+    : 0;
 
   return (
     <section className="relative w-full h-screen flex items-center overflow-hidden bg-[#111111]">
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url('/images/heroimage.png')",
-        }}
+        style={{ backgroundImage: "url('/images/heroimage.png')" }}
       />
-      {/* Dark overlay */}
-      {/* <div className="absolute inset-0 bg-black/70" /> */}
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center justify-between gap-10">
@@ -60,7 +96,7 @@ function HomeHero() {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="/campaigns"
+              href="/signin"
               className="bg-[#c9a84c] text-black text-xs font-bold tracking-[0.15em] uppercase px-7 py-3 hover:bg-[#b8963f] transition-colors"
             >
               Enter Now
@@ -79,13 +115,27 @@ function HomeHero() {
           <p className="text-[#666666] text-[10px] tracking-[0.2em] uppercase mb-2">
             Current Grand Prize
           </p>
-          <p className="text-[#c9a84c] text-4xl font-bold mb-1">$1,000,000</p>
-          <p className="text-[#555555] text-xs mb-8">Lump Sum Cash Prize</p>
+
+          {isLoading ? (
+            <div className="animate-pulse">
+              <div className="h-8 bg-[#2a2a2a] rounded w-48 mb-2" />
+              <div className="h-4 bg-[#2a2a2a] rounded w-32 mb-8" />
+            </div>
+          ) : (
+            <>
+              <p className="text-white text-2xl font-bold mb-1">
+                {campaign?.title ?? "—"}
+              </p>
+              <p className="text-[#555555] text-xs mb-8">
+                {campaign?.description ?? "—"}
+              </p>
+            </>
+          )}
 
           <p className="text-[#666666] text-[10px] tracking-[0.2em] uppercase mb-4">
             Closing In
           </p>
-          <div className="flex items-end gap-3">
+          <div className="flex items-end gap-3 mb-6">
             {[
               { value: pad(timeLeft.days), label: "Days" },
               { value: pad(timeLeft.hours), label: "Hours" },
@@ -106,6 +156,26 @@ function HomeHero() {
               </React.Fragment>
             ))}
           </div>
+
+          {/* Ticket progress */}
+          {campaign && (
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-[#666666] text-[10px] tracking-[0.15em] uppercase">
+                  Tickets Sold
+                </span>
+                <span className="text-[#c9a84c] text-[10px] font-bold">
+                  {campaign.soldTickets}/{campaign.totalTickets} ({soldPct}%)
+                </span>
+              </div>
+              <div className="w-full h-1 bg-[#2a2a2a] rounded-full">
+                <div
+                  className="h-1 bg-[#c9a84c] rounded-full transition-all duration-500"
+                  style={{ width: `${soldPct}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
