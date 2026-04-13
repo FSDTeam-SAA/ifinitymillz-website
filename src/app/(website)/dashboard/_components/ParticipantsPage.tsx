@@ -178,14 +178,6 @@ function ParticipantsPage() {
           <h1 className="text-white text-[24px] font-bold leading-[120%]">
             Participation Summary
           </h1>
-          <div className="w-full max-w-[320px]">
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by ticket/campaign..."
-              className="h-10 bg-[#1a1a1a] border-[#2e2e2e] text-[#C9C9C9] placeholder:text-[#666] focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
         </div>
 
         {/* Table Container */}
