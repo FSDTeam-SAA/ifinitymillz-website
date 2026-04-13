@@ -1,11 +1,14 @@
-"use client"
+"use client";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Clock } from "lucide-react";
+import { toast } from "sonner";
+import authImage from "@../../../public/images/auth.png";
 
 function VerifyEmailForm() {
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(59);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -53,33 +56,58 @@ function VerifyEmailForm() {
     setTimer(59);
     setOtp(["", "", "", "", "", ""]);
     inputRefs.current[0]?.focus();
-    console.log("OTP resent");
+    toast.success("OTP resent successfully!");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("OTP submitted:", otp.join(""));
+    const otpValue = otp.join("");
+    if (otpValue.length < 6) {
+      toast.error("Please enter the complete 6-digit OTP");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Replace with your actual OTP verification API call
+      console.log("OTP submitted:", otpValue);
+      toast.success("Email verified successfully!");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Verification failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 px-8 py-12">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen flex bg-[#181715]">
+      {/* Left Side - Image */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <Image
+          width={400}
+          height={400}
+          src={authImage}
+          alt="Verify email"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-8 py-12">
+        <div className="w-full max-w-2xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">
-              Verify Email
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Enter OTP to verify your email address
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold text-[#F0C230] mb-2">Verify Email</h1>
+            <p className="text-[#DDDDDD]">
+              Enter the 6-digit OTP sent to your email address.
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* OTP Inputs */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-center">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -91,24 +119,25 @@ function VerifyEmailForm() {
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={handlePaste}
-                  className={`w-12 h-12 text-center text-lg font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all
-                    ${digit ? "border-blue-500 text-blue-600" : "border-gray-300 text-gray-900"}`}
+                  className={`w-12 h-12 text-center text-lg font-semibold !rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#F0C230] focus:border-transparent transition-all bg-[#414141] text-white
+                    ${digit ? "ring-2 ring-[#F0C230]" : ""}`}
                 />
               ))}
             </div>
 
             {/* Timer & Resend */}
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-1 text-gray-500">
+              <div className="flex items-center gap-1 text-[#C3C3C3]">
                 <Clock className="w-4 h-4" />
                 <span>{formatTime(timer)}</span>
               </div>
-              <div className="text-gray-500">
+              <div className="text-[#C3C3C3]">
                 Didn&apos;t get a code?{" "}
                 <button
                   type="button"
                   onClick={handleResend}
-                  className="text-blue-600 hover:text-blue-700 font-semibold"
+                  disabled={timer > 0}
+                  className="text-[#F0C230] hover:text-[#F0C230]/80 font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Resend
                 </button>
@@ -118,23 +147,24 @@ function VerifyEmailForm() {
             {/* Verify Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors shadow-md"
+              disabled={isLoading}
+              className="w-full bg-[#E9C349] hover:bg-[#E9C349]/90 text-white font-semibold py-3 rounded-lg transition-colors shadow-md disabled:opacity-70"
             >
-              Verify
+              {isLoading ? "Verifying..." : "Verify"}
             </button>
+
+            {/* Back to Sign In */}
+            <div className="text-center text-sm text-[#C3C3C3]">
+              Remember your password?{" "}
+              <a
+                href="/sign-in"
+                className="text-[#F0C230] hover:text-[#F0C230]/80 font-semibold"
+              >
+                Sign In
+              </a>
+            </div>
           </form>
         </div>
-      </div>
-
-      {/* Right Side - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <Image
-          width={400}
-          height={400}
-          src="/images/signinImage.svg"
-          alt="Verify email"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -13,13 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-} from "lucide-react";
-// import ViewParticipantsModal from "@/components/Dialogs/ViewParticipantsModal";
-// import ViewUserModal from "@/components/Dialogs/ViewUserModal";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import ViewParticipantsModal from "@/components/Dialogs/ViewParticipantsModal";
@@ -33,19 +28,11 @@ interface EntryTicket {
   createdAt?: string;
 }
 
-interface UserDetail {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-}
-
 interface CampaignDetail {
   _id: string;
   title: string;
-  totalTickets?: number;
-  soldTickets?: number;
-  remainingTickets?: number;
+  status?: string;
+  remainingTickets?: number | null;
 }
 
 interface PackageInfo {
@@ -56,7 +43,7 @@ interface PackageInfo {
 
 interface EntryDetail {
   _id: string;
-  userId?: UserDetail;
+  userId?: string;
   campaignId?: CampaignDetail;
   quantity?: number;
   entryType?: string;
@@ -69,19 +56,14 @@ interface EntryDetail {
 
 interface ParticipantEntry {
   _id: string;
-  userId?: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-  campaignId?: {
-    _id: string;
-    title: string;
-  };
+  userId?: string; // not populated — just an ID string
+  campaignId?: CampaignDetail;
   quantity: number;
   tickets: EntryTicket[];
   entryType: EntryType;
   amount: number;
+  paymentStatus?: string;
+  transactionId?: string;
   createdAt: string;
 }
 
@@ -137,7 +119,7 @@ function ParticipantsPage() {
       }
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries?${queryParams.toString()}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/my?${queryParams.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -153,29 +135,12 @@ function ParticipantsPage() {
     },
   });
 
-  const fetchEntryById = async (entryId: string): Promise<EntryDetail> => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/${entryId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${TOKEN}`,
-        },
-      }
-    );
-    const json = await res.json();
-    if (!res.ok || !json?.status) throw new Error("Failed to fetch entry");
-    return json?.data;
-  };
-
-  const rawEntries = Array.isArray(participantData?.entries)
+  const rawEntries: ParticipantEntry[] = Array.isArray(participantData?.entries)
     ? participantData.entries
-    : participantData?._id
-      ? [participantData]
-      : [];
+    : [];
 
   const sortedEntries: ParticipantEntry[] = [...rawEntries].sort(
-    (a: ParticipantEntry, b: ParticipantEntry) =>
+    (a, b) =>
       new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime()
   );
 
@@ -185,8 +150,6 @@ function ParticipantsPage() {
     return sortedEntries.filter((entry) => {
       const tickets = (entry.tickets || []).map((t) => t.ticketNumber).join(" ");
       return (
-        (entry.userId?.name || "").toLowerCase().includes(q) ||
-        (entry.userId?.email || "").toLowerCase().includes(q) ||
         (entry.campaignId?.title || "").toLowerCase().includes(q) ||
         (entry.entryType || "").toLowerCase().includes(q) ||
         tickets.toLowerCase().includes(q)
@@ -199,7 +162,7 @@ function ParticipantsPage() {
     Number(participantData?.paginationInfo?.totalPages || 1)
   );
   const totalData = Number(participantData?.paginationInfo?.totalData || paginated.length);
-  const shouldShowPagination = totalData > 10;
+  const shouldShowPagination = totalData > PAGE_SIZE;
 
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -213,13 +176,13 @@ function ParticipantsPage() {
         {/* Title + Search */}
         <div className="mb-10 flex items-center justify-between gap-4">
           <h1 className="text-white text-[24px] font-bold leading-[120%]">
-            Participants / Entries
+            Participation Summary
           </h1>
           <div className="w-full max-w-[320px]">
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by ticket/user/campaign..."
+              placeholder="Search by ticket/campaign..."
               className="h-10 bg-[#1a1a1a] border-[#2e2e2e] text-[#C9C9C9] placeholder:text-[#666] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
@@ -231,7 +194,7 @@ function ParticipantsPage() {
             {/* Header */}
             <TableHeader>
               <TableRow className="bg-[#e8b84b] hover:bg-[#e8b84b] border-0">
-                {["User Name", "Email", "Campaign Name", "Tickets", "Entry Type", "Amount", "Date", "Actions"].map(
+                {["Campaign Name", "Tickets", "Entry Type", "Amount", "Payment Status", "Date", "Actions"].map(
                   (col) => (
                     <TableHead
                       key={col}
@@ -254,12 +217,11 @@ function ParticipantsPage() {
                         index % 2 === 0 ? "bg-[#161616]" : "bg-[#131313]"
                       }`}
                     >
-                      <TableCell className="text-center py-5"><Skeleton className="h-5 w-28 mx-auto bg-[#2a2a2a]" /></TableCell>
-                      <TableCell className="text-center py-5"><Skeleton className="h-5 w-44 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-36 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-24 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-6 w-16 mx-auto rounded-full bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-14 mx-auto bg-[#2a2a2a]" /></TableCell>
+                      <TableCell className="text-center py-5"><Skeleton className="h-5 w-20 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-20 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-8 w-8 mx-auto rounded-md bg-[#2a2a2a]" /></TableCell>
                     </TableRow>
@@ -271,88 +233,98 @@ function ParticipantsPage() {
                         index % 2 === 0 ? "bg-[#161616]" : "bg-[#131313]"
                       }`}
                     >
-                  {/* User Name */}
-                  <TableCell className="text-[#C9C9C9] text-base font-medium text-center py-5 leading-[120%] whitespace-nowrap">
-                    {p.userId?.name || "-"}
-                  </TableCell>
+                      {/* Campaign Name */}
+                      <TableCell className="text-[#C9C9C9] text-base font-medium text-center py-5 leading-[120%] whitespace-nowrap">
+                        {p.campaignId?.title || "-"}
+                      </TableCell>
 
-                  {/* Email */}
-                  <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%] whitespace-nowrap">
-                    {p.userId?.email || "-"}
-                  </TableCell>
+                      {/* Tickets */}
+                      <TableCell className="text-center py-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-[#aaaaaa] text-base leading-[120%]">
+                            {p.quantity} Tickets
+                          </span>
+                          <Eye
+                            size={16}
+                            className="text-[#c9a84c] cursor-pointer hover:text-[#e8b84b] transition-colors"
+                            onClick={() => {
+                              const mappedTickets = (p.tickets || []).map((ticket) => ({
+                                id: ticket._id,
+                                ticketNumber: ticket.ticketNumber,
+                                date: ticket.createdAt
+                                  ? new Date(ticket.createdAt).toLocaleDateString("en-GB")
+                                  : "-",
+                              }));
+                              setSelectedTickets(mappedTickets);
+                              setIsTicketModalOpen(true);
+                            }}
+                          />
+                        </div>
+                      </TableCell>
 
-                  {/* Campaign Name */}
-                  <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%] whitespace-nowrap">
-                    {p.campaignId?.title || "-"}
-                  </TableCell>
+                      {/* Entry Type */}
+                      <TableCell className="text-center py-5">
+                        <div className="flex justify-center">
+                          <EntryBadge type={p.entryType} />
+                        </div>
+                      </TableCell>
 
-                  {/* Tickets */}
-                  <TableCell className="text-center py-5">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-[#aaaaaa] text-base leading-[120%]">
-                        {p.quantity} Tickets
-                      </span>
-                      <Eye
-                        size={16}
-                        className="text-[#c9a84c] cursor-pointer hover:text-[#e8b84b] transition-colors"
-                        onClick={() => {
-                          const mappedTickets = (p.tickets || []).map((ticket) => ({
-                            id: ticket._id,
-                            ticketNumber: ticket.ticketNumber,
-                            date: ticket.createdAt
-                              ? new Date(ticket.createdAt).toLocaleDateString("en-GB")
-                              : "-",
-                          }));
-                          setSelectedTickets(mappedTickets);
-                          setIsTicketModalOpen(true);
-                        }}
-                      />
-                    </div>
-                  </TableCell>
+                      {/* Amount */}
+                      <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%]">
+                        {p.entryType === "FREE" ? "—" : `$${p.amount}`}
+                      </TableCell>
 
-                  {/* Entry Type */}
-                  <TableCell className="text-center py-5">
-                    <div className="flex justify-center">
-                      <EntryBadge type={p.entryType} />
-                    </div>
-                  </TableCell>
+                      {/* Payment Status */}
+                      <TableCell className="text-center py-5">
+                        <span
+                          className={`text-sm font-medium ${
+                            p.paymentStatus === "Paid"
+                              ? "text-[#3dba6f]"
+                              : "text-[#aaaaaa]"
+                          }`}
+                        >
+                          {p.paymentStatus || "-"}
+                        </span>
+                      </TableCell>
 
-                  {/* Amount */}
-                  <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%]">
-                    {p.entryType === "FREE" ? "x" : `$${p.amount}`}
-                  </TableCell>
+                      {/* Date */}
+                      <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%] whitespace-nowrap">
+                        {p.createdAt
+                          ? new Date(p.createdAt).toLocaleDateString("en-GB")
+                          : "-"}
+                      </TableCell>
 
-                  {/* Date */}
-                  <TableCell className="text-[#aaaaaa] text-base text-center py-5 leading-[120%] whitespace-nowrap">
-                    {p.createdAt
-                      ? new Date(p.createdAt).toLocaleDateString("en-GB")
-                      : "-"}
-                  </TableCell>
-
-                  {/* Actions */}
-                  <TableCell className="text-center py-5">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        className="w-8 h-8 rounded-md bg-[#3a2a10] border border-[#5a4a20] flex items-center justify-center hover:bg-[#4d3a15] transition-colors group"
-                        title="View Details"
-                        onClick={async () => {
-                          if (p._id) {
-                            const entryData = await fetchEntryById(p._id);
-                            setSelectedEntryDetail(entryData);
-                            setIsUserModalOpen(true);
-                          }
-                        }}
-                      >
-                        <Eye size={15} className="text-[#c9a84c] group-hover:text-[#e8b84b]" />
-                      </button>
-                    </div>
-                  </TableCell>
+                      {/* Actions */}
+                      <TableCell className="text-center py-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            className="w-8 h-8 rounded-md bg-[#3a2a10] border border-[#5a4a20] flex items-center justify-center hover:bg-[#4d3a15] transition-colors group"
+                            title="View Details"
+                            onClick={() => {
+                              setSelectedEntryDetail({
+                                _id: p._id,
+                                userId: typeof p.userId === "string" ? p.userId : undefined,
+                                campaignId: p.campaignId,
+                                quantity: p.quantity,
+                                entryType: p.entryType,
+                                amount: p.amount,
+                                paymentStatus: p.paymentStatus,
+                                transactionId: p.transactionId,
+                                createdAt: p.createdAt,
+                              });
+                              setIsUserModalOpen(true);
+                            }}
+                          >
+                            <Eye size={15} className="text-[#c9a84c] group-hover:text-[#e8b84b]" />
+                          </button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
 
               {!isLoading && paginated.length === 0 && (
                 <TableRow className="bg-[#161616]">
-                  <TableCell colSpan={8} className="text-center py-10 text-[#888]">
+                  <TableCell colSpan={7} className="text-center py-10 text-[#888]">
                     No entries found.
                   </TableCell>
                 </TableRow>
@@ -364,41 +336,41 @@ function ParticipantsPage() {
         {/* Pagination */}
         {shouldShowPagination && !isLoading && (
           <div className="flex justify-end items-center gap-1 mt-5">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="w-9 h-9 rounded-md bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white disabled:opacity-30"
-          >
-            <ChevronLeft size={14} />
-          </Button>
-
-          {getPageNumbers().map((page) => (
             <Button
-              key={page}
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 rounded-md text-sm font-semibold border transition-colors ${
-                currentPage === page
-                  ? "bg-[#e8b84b] border-[#e8b84b] text-[#111111] hover:bg-[#d4a73e]"
-                  : "bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white"
-              }`}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="w-9 h-9 rounded-md bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white disabled:opacity-30"
             >
-              {page}
+              <ChevronLeft size={14} />
             </Button>
-          ))}
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="w-9 h-9 rounded-md bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white disabled:opacity-30"
-          >
-            <ChevronRight size={14} />
-          </Button>
+            {getPageNumbers().map((page) => (
+              <Button
+                key={page}
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage(page)}
+                className={`w-9 h-9 rounded-md text-sm font-semibold border transition-colors ${
+                  currentPage === page
+                    ? "bg-[#e8b84b] border-[#e8b84b] text-[#111111] hover:bg-[#d4a73e]"
+                    : "bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white"
+                }`}
+              >
+                {page}
+              </Button>
+            ))}
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="w-9 h-9 rounded-md bg-[#1a1a1a] border-[#2e2e2e] text-[#888] hover:bg-[#252525] hover:text-white disabled:opacity-30"
+            >
+              <ChevronRight size={14} />
+            </Button>
           </div>
         )}
 
@@ -408,11 +380,6 @@ function ParticipantsPage() {
           tickets={selectedTickets}
         />
 
-        <ViewUserModal
-          open={isUserModalOpen}
-          onOpenChange={setIsUserModalOpen}
-          entry={selectedEntryDetail}
-        />
       </div>
     </div>
   );

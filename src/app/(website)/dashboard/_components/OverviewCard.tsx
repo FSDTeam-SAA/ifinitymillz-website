@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Users, Megaphone, Trophy } from "lucide-react";
+import { Ticket, Megaphone, Trophy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
@@ -13,8 +13,8 @@ interface StatCardProps {
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <div className="flex flex-col gap-3 !rounded-[8px] bg-[#181715] border border-[#2a2a2a] p-5 border-[#c9a84c]/40 shadow-[4px_8px_25px_0px_#00000014]">
-      <div className="text-[#c9a84c] w-7 h-7 group-hover:scale-110 transition-transform duration-300">
+    <div className="flex flex-col gap-3 !rounded-[8px] bg-[#181715] border border-[#c9a84c]/40 p-5 shadow-[4px_8px_25px_0px_#00000014]">
+      <div className="text-[#c9a84c] w-7 h-7">
         {icon}
       </div>
       <span className="text-white text-3xl font-bold leading-none tracking-tight">
@@ -26,12 +26,9 @@ function StatCard({ icon, value, label }: StatCardProps) {
 }
 
 interface StatsData {
-  totalUsers: number;
-  totalCampaigns: number;
-  totalWinners: number;
-  totalEntries: number;
-  totalWithdrawals: number;
-  pendingVerifications: number;
+  ticketsPurchased: number;
+  campaignsJoined: number;
+  activeCampaigns: number;
 }
 
 interface ApiResponse {
@@ -46,9 +43,10 @@ function OverviewCard() {
 
   const { data: overviewData, isLoading } = useQuery<ApiResponse>({
     queryKey: ["overview"],
+    enabled: !!TOKEN,
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/users/admin/stats`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/my-stats`,
         {
           method: "GET",
           headers: {
@@ -66,33 +64,31 @@ function OverviewCard() {
 
   const statCards: StatCardProps[] = [
     {
-      icon: <Users size={28} strokeWidth={1.5} />,
-      value: isLoading ? "..." : (stats?.totalUsers ?? 0),
-      label: "Total Users",
+      icon: <Ticket size={28} strokeWidth={1.5} />,
+      value: isLoading ? "..." : (stats?.ticketsPurchased ?? 0),
+      label: "Tickets Purchased",
     },
     {
       icon: <Megaphone size={28} strokeWidth={1.5} />,
-      value: isLoading ? "..." : (stats?.totalCampaigns ?? 0),
-      label: "Campaigns",
+      value: isLoading ? "..." : (stats?.campaignsJoined ?? 0),
+      label: "Campaigns Joined",
     },
     {
       icon: <Trophy size={28} strokeWidth={1.5} />,
-      value: isLoading ? "..." : (stats?.totalWinners ?? 0),
-      label: "Total Winners",
+      value: isLoading ? "..." : (stats?.activeCampaigns ?? 0),
+      label: "Active Campaigns",
     },
   ];
 
   return (
     <div className="">
-      <div className="">
-        <h2 className="text-white text-[24px] font-bold mb-6 leading-[120%]">
-          Dashboard Overview
-        </h2>
-        <div className="grid grid-cols-3 gap-6">
-          {statCards.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))}
-        </div>
+      <h2 className="text-white text-[24px] font-bold mb-6 leading-[120%]">
+        Dashboard Overview
+      </h2>
+      <div className="grid grid-cols-3 gap-6">
+        {statCards.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
       </div>
     </div>
   );

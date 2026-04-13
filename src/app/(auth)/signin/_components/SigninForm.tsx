@@ -148,7 +148,7 @@ function SignInForm() {
                 <span className="ml-2 text-sm text-[#C3C3C3]">Remember me</span>
               </label>
               <a
-                href="#"
+                href="/forgotpassword"
                 className="text-sm text-[#F0C230] hover:text-blue-700 font-medium"
               >
                 Forgot password?
@@ -168,7 +168,7 @@ function SignInForm() {
             <div className="text-center text-sm text-[#C3C3C3]">
               Don&apos;t have an account?{" "}
               <a
-                href="#"
+                href="/signup"
                 className="text-[#F0C230] hover:text-blue-700 font-semibold"
               >
                 Sign Up

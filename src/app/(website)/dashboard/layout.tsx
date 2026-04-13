@@ -13,7 +13,7 @@ function layout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
 
-        <div className="flex-1 overflow-y-auto p-6 mt-[80px] bg-[#252525]">
+        <div className="flex-1 overflow-y-auto p-6 bg-[#252525]">
           {children}
         </div>
       </div>

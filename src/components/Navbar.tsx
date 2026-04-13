@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: "Terms & Comditions", href: "/terms" },
   { label: "Winners", href: "/winners" },
   { label: "Apply For Campaign", href: "/apply-campaign" },
-  { label: "Login", href: "/signin" },
+  // { label: "Login", href: "/signin" },
 ];
 
 function Navbar() {
@@ -52,13 +52,13 @@ function Navbar() {
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
           <Link
-            href="/campaigns"
+            href="/signin"
             className="bg-[#c9a84c] text-black text-[11px] font-bold tracking-[0.15em] uppercase px-5 py-2.5 hover:bg-[#b8963f] transition-colors whitespace-nowrap"
           >
-            Enter Now
+            Login Now
           </Link>
           <Link
-            href="/profile"
+            href="/dashboard"
             className="text-[#888888] hover:text-[#c9a84c] transition-colors"
           >
             <CircleUserRound size={26} strokeWidth={1.5} />

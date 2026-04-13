@@ -1,28 +1,69 @@
-"use client"
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
+import authImage from "@../../../public/images/auth.png";
 
 function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle OTP sending logic here
-    console.log("OTP sent to:", email);
+
+    if (!email) {
+      toast.error("Email is required");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Replace with your actual OTP sending API call
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to send OTP");
+      }
+
+      toast.success("OTP sent to your email!");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to send OTP";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 px-8 py-12">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen flex bg-[#181715]">
+      {/* Left Side - Image */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <Image
+          width={400}
+          height={400}
+          src={authImage}
+          alt="Food distribution"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-8 py-12">
+        <div className="w-full max-w-2xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">
-              Forgot Password
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold text-[#F0C230] mb-2">
+              Forgot Password?
             </h1>
-            <p className="text-gray-500 text-sm">
-              Enter your email to recover your password
+            <p className="text-[#DDDDDD]">
+              Enter your email and well send you an OTP to reset your password.
             </p>
           </div>
 
@@ -32,7 +73,7 @@ function ForgotPasswordForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-[#C3C3C3] mb-2"
               >
                 Email Address
               </label>
@@ -42,7 +83,7 @@ function ForgotPasswordForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="hello@example.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 !rounded-[8px] focus:outline-none focus:ring-2 focus:ring-[#F0C230] focus:border-transparent transition-all bg-[#414141] text-white"
                 required
               />
             </div>
@@ -50,23 +91,24 @@ function ForgotPasswordForm() {
             {/* Send OTP Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors shadow-md"
+              disabled={isLoading}
+              className="w-full bg-[#E9C349] hover:bg-[#E9C349]/90 text-white font-semibold py-3 rounded-lg transition-colors shadow-md disabled:opacity-70"
             >
-              Send OTP
+              {isLoading ? "Sending OTP..." : "Send OTP"}
             </button>
+
+            {/* Back to Sign In */}
+            <div className="text-center text-sm text-[#C3C3C3]">
+              Remember your password?{" "}
+              <a
+                href="/signin"
+                className="text-[#F0C230] hover:text-[#F0C230]/80 font-semibold"
+              >
+                Sign In
+              </a>
+            </div>
           </form>
         </div>
-      </div>
-
-      {/* Right Side - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <Image
-          width={400}
-          height={400}
-          src="/images/signinImage.svg"
-          alt="Food distribution"
-          className="absolute inset-0 w-full h-full object-contain"
-        />
       </div>
     </div>
   );

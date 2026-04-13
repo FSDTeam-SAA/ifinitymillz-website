@@ -10,14 +10,13 @@ import { LogoutModal } from "../Dialogs/LogoutModal";
 const navigation = [
   { name: "Dashboard Overview", href: "/dashboard", icon: LayoutDashboard },
   {
-    name: "User Management",
-    href: "/dashboard/user-management",
+    name: "My Entries",
+    href: "/dashboard/entries",
     icon: UserRound ,
   },
-  { name: "Participants/Entries", href: "/dashboard/participants", icon: HandCoins },
-  { name: "Campaigns", href: "/dashboard/campaigns", icon: HandCoins },
-  { name: "Winners/Draw Results", href: "/dashboard/winners", icon: HandCoins },
-   { name: "Withdrawal Request", href: "/dashboard/withdrawal-request", icon: HandCoins },
+  { name: "Results / Winners", href: "/dashboard/winners", icon: HandCoins },
+   { name: "Withdrawal", href: "/dashboard/withdrawal-request", icon: HandCoins },
+  { name: "Profile Settings", href: "/dashboard/participants", icon: HandCoins },
 ];
 
 export function Sidebar() {
