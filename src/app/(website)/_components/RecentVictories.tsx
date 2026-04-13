@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 const VICTORIES = [
   {
@@ -9,7 +10,7 @@ const VICTORIES = [
     name: "Sarah M. won $10,000 Cash",
     campaign: "Campaign: Community Relief Fund",
     quote:
-      "\"I couldn't believe my eyes when the notification came through. Wholeheart is the real deal.\"",
+      '"I couldn\'t believe my eyes when the notification came through. Wholeheart is the real deal."',
     image:
       "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80",
   },
@@ -18,7 +19,7 @@ const VICTORIES = [
     name: "David K. won Tesla Model S",
     campaign: "Campaign: Green Energy Initiative",
     quote:
-      "\"The process was so transparent. I could follow every step of the draw from my dashboard.\"",
+      '"The process was so transparent. I could follow every step of the draw from my dashboard."',
     image:
       "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=600&q=80",
   },
@@ -27,7 +28,7 @@ const VICTORIES = [
     name: "James & Lisa won $50,000",
     campaign: "Campaign: Global Education Drive",
     quote:
-      "\"Entering was so simple, and knowing we were supporting education made the win even sweeter.\"",
+      '"Entering was so simple, and knowing we were supporting education made the win even sweeter."',
     image:
       "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80",
   },
@@ -36,7 +37,7 @@ const VICTORIES = [
     name: "Maria T. won Dream Vacation",
     campaign: "Campaign: Wellness & Travel Fund",
     quote:
-      "\"I never thought I'd win anything. Wholeheart changed everything for my family.\"",
+      '"I never thought I\'d win anything. Wholeheart changed everything for my family."',
     image:
       "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=600&q=80",
   },
@@ -46,8 +47,7 @@ function RecentVictories() {
   const [startIndex, setStartIndex] = useState(0);
   const visible = 3;
 
-  const prev = () =>
-    setStartIndex((i) => Math.max(0, i - 1));
+  const prev = () => setStartIndex((i) => Math.max(0, i - 1));
   const next = () =>
     setStartIndex((i) => Math.min(VICTORIES.length - visible, i + 1));
 
@@ -88,7 +88,9 @@ function RecentVictories() {
             >
               {/* Image */}
               <div className="h-52 overflow-hidden">
-                <img
+                <Image
+                  height={400}
+                  width={400}
                   src={v.image}
                   alt={v.name}
                   className="w-full h-full object-cover"

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 
 const STATS = [
@@ -14,7 +15,9 @@ function CampaignHost() {
         {/* Photo */}
         <div className="shrink-0">
           <div className="w-44 h-52 border border-[#c9a84c]/30 overflow-hidden">
-            <img
+            <Image
+            width={400}
+            height={400}
               src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80"
               alt="Julian Vane"
               className="w-full h-full object-cover grayscale"

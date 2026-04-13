@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Campaign {
   id: number;
@@ -51,7 +52,9 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
     <div className="relative flex flex-col bg-[#111111] border border-[#222222] overflow-hidden group">
       {/* Image */}
       <div className="relative h-56 overflow-hidden">
-        <img
+        <Image
+        width={400}
+        height={400}
           src={campaign.image}
           alt={campaign.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
