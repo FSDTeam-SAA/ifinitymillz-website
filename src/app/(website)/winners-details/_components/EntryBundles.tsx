@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface Package {
   _id: string;
@@ -12,10 +13,13 @@ interface Package {
 interface EntryBundlesProps {
   packages: Package[];
   maxFreeEntries: number;
+  campaignId?: string;
+  token?: string;
 }
 
-function EntryBundles({ packages, maxFreeEntries }: EntryBundlesProps) {
+function EntryBundles({ packages, maxFreeEntries, campaignId, token }: EntryBundlesProps) {
   const [selected, setSelected] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
 
   const bundles = [
     {
@@ -24,6 +28,7 @@ function EntryBundles({ packages, maxFreeEntries }: EntryBundlesProps) {
       entries: `${maxFreeEntries} Entry`,
       price: 0,
       popular: false,
+      packageId: null as string | null,
     },
     ...packages.map((pkg, i) => ({
       tier: pkg.name,
@@ -31,8 +36,43 @@ function EntryBundles({ packages, maxFreeEntries }: EntryBundlesProps) {
       entries: `${pkg.ticketQuantity} Entries`,
       price: pkg.price,
       popular: i === 0,
+      packageId: pkg._id,
     })),
   ];
+
+  const handleSelectBundle = async (bundle: typeof bundles[0]) => {
+    if (!campaignId) return;
+    setLoading(true);
+    try {
+      const url = bundle.packageId === null ? "/entries/free" : "/entries/paid";
+      const body = bundle.packageId === null
+        ? { campaignId }
+        : { campaignId, packageId: bundle.packageId };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${url}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (json.status) {
+        if (json.data?.url) {
+          window.location.href = json.data.url;
+        } else {
+          toast.success(json.message);
+        }
+      } else {
+        toast.error(json.message);
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="w-full bg-[#0d0d0d] py-16 px-8">
@@ -75,13 +115,18 @@ function EntryBundles({ packages, maxFreeEntries }: EntryBundlesProps) {
 
               {/* Button */}
               <button
-                className={`w-full text-[10px] font-bold tracking-[0.2em] uppercase py-3.5 transition-all duration-300 ${
+                disabled={loading && isSelected}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectBundle(bundle);
+                }}
+                className={`w-full text-[10px] font-bold tracking-[0.2em] uppercase py-3.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                   isSelected
                     ? "bg-[#c9a84c] text-black"
                     : "bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:border-[#c9a84c] hover:text-[#c9a84c]"
                 }`}
               >
-                Select Bundle
+                {loading && isSelected ? "Processing..." : "Select Bundle"}
               </button>
             </div>
           );

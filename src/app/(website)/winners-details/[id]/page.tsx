@@ -16,6 +16,7 @@ function Page() {
 
   const { data: campaignData } = useQuery({
     queryKey: ['single-campaign', id],
+    enabled: !!TOKEN,
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/${id}`, {
         method: "GET",
@@ -39,6 +40,8 @@ function Page() {
       <EntryBundles
         packages={campaignData?.packages ?? []}
         maxFreeEntries={campaignData?.maxFreeEntries ?? 1}
+        campaignId={campaignData?._id}
+        token={TOKEN}
       />
       <MissionTransparency />
       {/* <CampaignHost /> */}
