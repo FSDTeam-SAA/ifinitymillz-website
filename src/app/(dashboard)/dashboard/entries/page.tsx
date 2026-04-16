@@ -3,7 +3,7 @@ import UserManagement from './_components/UserManagement'
 
 function page() {
   return (
-    <div>
+    <div className='p-6'>
         <UserManagement />
     </div>
   )

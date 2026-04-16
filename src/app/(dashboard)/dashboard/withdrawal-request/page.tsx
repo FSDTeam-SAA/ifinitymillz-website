@@ -3,7 +3,7 @@ import WithdrawalRequest from './_components/WithdrawalRequest'
 
 function page() {
   return (
-    <div>
+    <div className='p-6'>
         <WithdrawalRequest/>
     </div>
   )

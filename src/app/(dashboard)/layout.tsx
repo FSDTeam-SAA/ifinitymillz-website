@@ -10,10 +10,10 @@ function layout({ children }: { children: React.ReactNode }) {
     <div className="h-screen flex flex-col">
       <Header />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden mt-[80px]">
         <Sidebar />
 
-        <div className="flex-1 overflow-y-auto p-6 bg-[#252525]">
+        <div className="flex-1 overflow-y-auto bg-[#252525]">
           {children}
         </div>
       </div>

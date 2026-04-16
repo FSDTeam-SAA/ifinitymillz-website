@@ -3,7 +3,7 @@ import CampaignsPage from './_components/CampaignsPage'
 
 function page() {
   return (
-    <div>
+    <div className='p-6'>
         <CampaignsPage />
     </div>
   )

@@ -3,7 +3,7 @@ import WinnersPage from './_components/WinnersPage'
 
 function page() {
   return (
-    <div>
+    <div className='p-6'>
         <WinnersPage />
     </div>
   )
