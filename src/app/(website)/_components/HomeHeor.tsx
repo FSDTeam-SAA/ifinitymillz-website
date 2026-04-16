@@ -13,6 +13,7 @@ interface CampaignData {
   endDate: string;
   prizeImage: string;
   status: string;
+  campaignPrice: string;
 }
 
 interface ApiResponse {
@@ -123,8 +124,8 @@ function HomeHero() {
             </div>
           ) : (
             <>
-              <p className="text-white text-2xl font-bold mb-1">
-                {campaign?.title ?? "—"}
+              <p className="text-white text-3xl font-bold mb-1">
+                {campaign?.campaignPrice ?? "—"}
               </p>
               <p className="text-[#555555] text-xs mb-8">
                 {campaign?.description ?? "—"}

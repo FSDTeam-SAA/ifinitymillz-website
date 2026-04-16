@@ -2,48 +2,42 @@
 
 import React, { useState } from "react";
 
-interface Bundle {
-  tier: string;
-  title: string;
-  entries: string;
+interface Package {
+  _id: string;
+  name: string;
+  ticketQuantity: number;
   price: number;
-  originalPrice?: number;
-  popular?: boolean;
 }
 
-const BUNDLES: Bundle[] = [
-  {
-    tier: "Essential",
-    title: "Free Entry",
-    entries: "1 Entry",
-    price: 0,
-    popular: false,
-  },
-  {
-    tier: "Advantage",
-    title: "5 Entries",
-    entries: "5 Entries",
-    price: 20,
-    originalPrice: 25,
-    popular: true,
-  },
-  {
-    tier: "Philanthropist",
-    title: "15 Entries",
-    entries: "15 Entries",
-    price: 50,
-    originalPrice: 75,
-    popular: false,
-  },
-];
+interface EntryBundlesProps {
+  packages: Package[];
+  maxFreeEntries: number;
+}
 
-function EntryBundles() {
+function EntryBundles({ packages, maxFreeEntries }: EntryBundlesProps) {
   const [selected, setSelected] = useState<number>(1);
+
+  const bundles = [
+    {
+      tier: "Essential",
+      title: `${maxFreeEntries} Entry`,
+      entries: `${maxFreeEntries} Entry`,
+      price: 0,
+      popular: false,
+    },
+    ...packages.map((pkg, i) => ({
+      tier: pkg.name,
+      title: `${pkg.ticketQuantity} Entries`,
+      entries: `${pkg.ticketQuantity} Entries`,
+      price: pkg.price,
+      popular: i === 0,
+    })),
+  ];
 
   return (
     <section className="w-full bg-[#0d0d0d] py-16 px-8">
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
-        {BUNDLES.map((bundle, i) => {
+        {bundles.map((bundle, i) => {
           const isSelected = selected === i;
           return (
             <div
@@ -77,11 +71,6 @@ function EntryBundles() {
                 <span className="text-[#c9a84c] text-3xl font-bold">
                   ${bundle.price}
                 </span>
-                {bundle.originalPrice && (
-                  <span className="text-[#444444] text-base line-through">
-                    ${bundle.originalPrice}
-                  </span>
-                )}
               </div>
 
               {/* Button */}

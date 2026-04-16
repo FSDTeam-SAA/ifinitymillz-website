@@ -109,7 +109,7 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
 
         {/* Button */}
         <Link
-          href={`/campaigns/${campaign.id}`}
+          href={`/winners-details/${campaign.id}`}
           className="mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-3 hover:bg-[#c9a84c] hover:text-black hover:border-[#c9a84c] transition-all duration-300"
         >
           Enter Now
