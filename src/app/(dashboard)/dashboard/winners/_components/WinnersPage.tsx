@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 interface ResultEntry {
+  campaignId: string;
   campaignTitle: string;
   prizeImage: string;
   yourTickets: string[];
@@ -143,7 +144,7 @@ function WinnersPage() {
                     "Your Tickets",
                     "Winner Ticket",
                     "Results",
-                    "Results",
+                    "Withdrow",
                     "Draw Date",
                   ].map((col, i) => (
                     <TableHead
@@ -215,7 +216,7 @@ function WinnersPage() {
                       {/* Withdraw button (only if won) */}
                       <TableCell className="text-center py-4">
                         {entry.isWinner && (
-                          <Link href={`/dashboard/winners`}>
+                          <Link href={`/dashboard/winners/${entry.campaignId}`}>
                             <button
                               
                               

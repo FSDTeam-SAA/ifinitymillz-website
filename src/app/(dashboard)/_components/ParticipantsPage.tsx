@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -12,13 +11,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import ViewParticipantsModal from "@/components/Dialogs/ViewParticipantsModal";
-import ViewUserModal from "@/components/Dialogs/ViewUserModal";
 
 type EntryType = "FREE" | "PAID";
 
@@ -33,25 +30,6 @@ interface CampaignDetail {
   title: string;
   status?: string;
   remainingTickets?: number | null;
-}
-
-interface PackageInfo {
-  name?: string;
-  ticketQuantity?: number;
-  price?: number;
-}
-
-interface EntryDetail {
-  _id: string;
-  userId?: string;
-  campaignId?: CampaignDetail;
-  quantity?: number;
-  entryType?: string;
-  amount?: number;
-  paymentStatus?: string;
-  transactionId?: string;
-  createdAt?: string;
-  packageInfo?: PackageInfo;
 }
 
 interface ParticipantEntry {
@@ -86,15 +64,12 @@ function EntryBadge({ type }: { type: EntryType }) {
 
 function ParticipantsPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<
     { id: string; ticketNumber: string; date: string }[]
   >([]);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [selectedEntryDetail, setSelectedEntryDetail] = useState<EntryDetail | null>(null);
-
   const session = useSession();
   const TOKEN = session?.data?.user?.accessToken;
 
@@ -186,7 +161,7 @@ function ParticipantsPage() {
             {/* Header */}
             <TableHeader>
               <TableRow className="bg-[#e8b84b] hover:bg-[#e8b84b] border-0">
-                {["Campaign Name", "Tickets", "Entry Type", "Amount", "Payment Status", "Date", "Actions"].map(
+                {["Campaign Name", "Tickets", "Entry Type", "Amount", "Payment Status", "Date"].map(
                   (col) => (
                     <TableHead
                       key={col}
@@ -215,7 +190,6 @@ function ParticipantsPage() {
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-14 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-20 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-20 mx-auto bg-[#2a2a2a]" /></TableCell>
-                      <TableCell className="text-center py-5"><Skeleton className="h-8 w-8 mx-auto rounded-md bg-[#2a2a2a]" /></TableCell>
                     </TableRow>
                   ))
                 : paginated.map((p, index) => (
@@ -286,37 +260,12 @@ function ParticipantsPage() {
                           : "-"}
                       </TableCell>
 
-                      {/* Actions */}
-                      <TableCell className="text-center py-5">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            className="w-8 h-8 rounded-md bg-[#3a2a10] border border-[#5a4a20] flex items-center justify-center hover:bg-[#4d3a15] transition-colors group"
-                            title="View Details"
-                            onClick={() => {
-                              setSelectedEntryDetail({
-                                _id: p._id,
-                                userId: typeof p.userId === "string" ? p.userId : undefined,
-                                campaignId: p.campaignId,
-                                quantity: p.quantity,
-                                entryType: p.entryType,
-                                amount: p.amount,
-                                paymentStatus: p.paymentStatus,
-                                transactionId: p.transactionId,
-                                createdAt: p.createdAt,
-                              });
-                              setIsUserModalOpen(true);
-                            }}
-                          >
-                            <Eye size={15} className="text-[#c9a84c] group-hover:text-[#e8b84b]" />
-                          </button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))}
 
               {!isLoading && paginated.length === 0 && (
                 <TableRow className="bg-[#161616]">
-                  <TableCell colSpan={7} className="text-center py-10 text-[#888]">
+                  <TableCell colSpan={6} className="text-center py-10 text-[#888]">
                     No entries found.
                   </TableCell>
                 </TableRow>

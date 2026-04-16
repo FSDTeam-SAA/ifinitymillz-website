@@ -51,7 +51,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "flex h-screen sticky bottom-0 top-0 flex-col bg-[#181715] z-50 transition-transform duration-300 overflow-auto",
+          "flex sticky bottom-0 top-0 flex-col bg-[#181715] z-50 transition-transform duration-300 overflow-auto",
           // Mobile এ
           "fixed lg:static",
           "w-[240px] sm:w-[250px] lg:w-[300px]",
@@ -61,33 +61,22 @@ export function Sidebar() {
             : "-translate-x-full lg:translate-x-0",
         )}
       >
-        {/* Header with Logo - Logo সবসময় center এ */}
-        <div className="flex items-center justify-center relative px-4 mt-2">
-          <div className="flex h-[60px] items-center gap-2">
-            {/* <Image
-              src="/images/logo.png"
-              alt="Logo"
-              width={80}
-              height={80}
-              className="object-contain w-full h-full"
-            /> */}
-            <h1 className="text-[#E9C349] text-2xl font-bold leading-[32px0] tracking-[0.6px] mt-5 pl-3">Wholeheart Campaigns</h1>
-          </div>
-
-          {/* Close Button - absolute position এ top right corner এ */}
-          {isMobileMenuOpen && (
+        {/* Mobile Close Button */}
+        {isMobileMenuOpen && (
+          <div className="flex justify-end px-4 pt-4 lg:hidden">
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg text-white hover:bg-slate-600/50 transition-colors"
+              className="p-2 rounded-lg text-white hover:bg-slate-600/50 transition-colors"
               aria-label="Close menu"
             >
               <X className="h-6 w-6" />
             </button>
-          )} 
-        </div>
+          </div>
+        )}
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-3 flex flex-col items-center justify-start px-3 overflow-y-auto mt-10">
+        <nav className="flex-1 space-y-3 flex flex-col items-center justify-start px-3 overflow-y-auto pt-6">
+
           {navigation.map((item) => {
             const isActive =
               pathname === item.href ||

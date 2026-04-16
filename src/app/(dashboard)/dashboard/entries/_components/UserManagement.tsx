@@ -12,20 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, Ban } from "lucide-react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
-type UserStatus = "Pending" | "Approved" | "Rejected" | "Suspended";
+type CampaignStatus = "Active" | "Ended" | "Pending" | "Approved" | "Rejected" | "Suspended";
 
 interface CampaignDetail {
   _id: string;
   title: string;
-  status?: string;
+  status?: CampaignStatus;
 }
 
 interface EntryTicket {
@@ -44,7 +40,6 @@ interface ApiEntry {
   paymentStatus?: string;
   transactionId?: string;
   createdAt: string;
-  status?: UserStatus;
 }
 
 interface PaginationInfo {
@@ -66,77 +61,27 @@ interface ApiResponse {
 
 const PAGE_SIZE = 10;
 
-function ActionButtons({
-  status,
-  isLoading,
-  onAccept,
-  onReject,
-  onSuspend,
-}: {
-  status: UserStatus;
-  isLoading: boolean;
-  onAccept: () => void;
-  onReject: () => void;
-  onSuspend: () => void;
-}) {
-  if (status === "Suspended") {
-    return (
-      <Badge className="bg-[#e05555] hover:bg-[#c94444] text-white text-[14px] font-semibold px-4 py-1.5 rounded-full flex items-center gap-1 cursor-default border-0 opacity-80">
-        <Ban size={12} />
-        Suspended
-      </Badge>
-    );
-  }
+function StatusBadge({ status }: { status?: CampaignStatus }) {
+  const s = status || "Pending";
 
-  if (status === "Approved") {
-    return (
-      <Badge
-        onClick={onSuspend}
-        className={`bg-[#e05555] hover:bg-[#c94444] text-white text-[14px] font-semibold px-4 py-1.5 rounded-full flex items-center gap-1 cursor-pointer border-0 transition-colors ${
-          isLoading ? "pointer-events-none opacity-60" : ""
-        }`}
-      >
-        <Ban size={12} />
-        Suspend
-      </Badge>
-    );
-  }
+  const styles: Record<CampaignStatus, string> = {
+    Active:    "bg-[#1a3a2a] text-[#3dba6f] border border-[#2a5a3a]",
+    Approved:  "bg-[#1a3a2a] text-[#3dba6f] border border-[#2a5a3a]",
+    Ended:     "bg-[#2a2a3a] text-[#8888cc] border border-[#3a3a5a]",
+    Pending:   "bg-[#3a3010] text-[#c9a84c] border border-[#5a4a20]",
+    Rejected:  "bg-[#3a1a1a] text-[#e05555] border border-[#5a2a2a]",
+    Suspended: "bg-[#3a1a1a] text-[#e05555] border border-[#5a2a2a]",
+  };
 
-  if (status === "Rejected") {
-    return (
-      <Badge className="bg-[#e05555] hover:bg-[#c94444] text-white text-[14px] font-semibold px-4 py-1.5 rounded-full cursor-default border-0 opacity-60">
-        Rejected
-      </Badge>
-    );
-  }
-
-  // Pending — show Accept / Reject
   return (
-    <div className="flex items-center gap-2">
-      <Badge
-        onClick={onAccept}
-        className={`bg-[#3dba6f] hover:bg-[#34a561] text-white text-[14px] font-semibold px-4 py-1.5 rounded-full cursor-pointer border-0 transition-colors ${
-          isLoading ? "pointer-events-none opacity-60" : ""
-        }`}
-      >
-        Accept
-      </Badge>
-      <Badge
-        onClick={onReject}
-        className={`bg-[#e05555] hover:bg-[#c94444] text-white text-[14px] font-semibold px-4 py-1.5 rounded-full cursor-pointer border-0 transition-colors ${
-          isLoading ? "pointer-events-none opacity-60" : ""
-        }`}
-      >
-        Reject
-      </Badge>
-    </div>
+    <Badge className={`${styles[s]} hover:opacity-90 text-xs font-semibold px-3 py-1 rounded-full cursor-default`}>
+      {s}
+    </Badge>
   );
 }
 
 function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeRowId, setActiveRowId] = useState<string | null>(null);
-  const queryClient = useQueryClient();
   const session = useSession();
   const TOKEN = session?.data?.user?.accessToken;
 
@@ -178,42 +123,6 @@ function UserManagement() {
     return pages;
   };
 
-  const updateStatus = useMutation({
-    mutationFn: async ({
-      entryId,
-      status,
-    }: {
-      entryId: string;
-      status: UserStatus;
-    }) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/entries/${entryId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${TOKEN}`,
-          },
-          body: JSON.stringify({ status }),
-        }
-      );
-      const json = await res.json();
-      if (!res.ok || !json?.status) {
-        throw new Error(json?.message || "Failed to update status");
-      }
-      return json;
-    },
-    onMutate: ({ entryId }) => {
-      setActiveRowId(entryId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-data"] });
-    },
-    onSettled: () => {
-      setActiveRowId(null);
-    },
-  });
-
   return (
     <div className="min-h-screen">
       <div className="">
@@ -228,7 +137,7 @@ function UserManagement() {
             {/* Header */}
             <TableHeader>
               <TableRow className="bg-[#e8b84b] hover:bg-[#e8b84b] border-0">
-                {["Campaign", "Tickets", "Entry Type", "Amount", "Payment Status", "Date", "Actions"].map(
+                {["Campaign", "Tickets", "Entry Type", "Amount", "Payment Status", "Date", "Status"].map(
                   (col) => (
                     <TableHead
                       key={col}
@@ -257,7 +166,7 @@ function UserManagement() {
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-14 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-20 mx-auto bg-[#2a2a2a]" /></TableCell>
                       <TableCell className="text-center py-5"><Skeleton className="h-5 w-24 mx-auto bg-[#2a2a2a]" /></TableCell>
-                      <TableCell className="text-center py-4"><Skeleton className="h-8 w-24 rounded-full mx-auto bg-[#2a2a2a]" /></TableCell>
+                      <TableCell className="text-center py-4"><Skeleton className="h-6 w-20 rounded-full mx-auto bg-[#2a2a2a]" /></TableCell>
                     </TableRow>
                   ))
                 : entries.map((entry, index) => (
@@ -319,22 +228,10 @@ function UserManagement() {
                           : "-"}
                       </TableCell>
 
-                      {/* Actions */}
+                      {/* Status */}
                       <TableCell className="text-center py-4">
                         <div className="flex justify-center">
-                          <ActionButtons
-                            status={entry.status || "Pending"}
-                            isLoading={updateStatus.isPending && activeRowId === entry._id}
-                            onAccept={() =>
-                              updateStatus.mutate({ entryId: entry._id, status: "Approved" })
-                            }
-                            onReject={() =>
-                              updateStatus.mutate({ entryId: entry._id, status: "Rejected" })
-                            }
-                            onSuspend={() =>
-                              updateStatus.mutate({ entryId: entry._id, status: "Suspended" })
-                            }
-                          />
+                          <StatusBadge status={entry.campaignId?.status} />
                         </div>
                       </TableCell>
                     </TableRow>

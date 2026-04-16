@@ -1,81 +1,95 @@
-"use client"
+"use client";
 
-import { useMutation } from '@tanstack/react-query'
-import React, { useState } from 'react'
-import { Eye } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { useMutation } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { Eye } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
 
 interface WithdrawalFormData {
-  campaignId: string
-  bankName: string
-  accountName: string
-  accountNumber: string
-  routingCode: string
-  method: string
-  notes: string
+  campaignId: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  routingCode: string;
+  method: string;
+  notes: string;
 }
 
 function WinnersForm() {
   const [formData, setFormData] = useState<WithdrawalFormData>({
-    campaignId: '',
-    bankName: '',
-    accountName: '',
-    accountNumber: '',
-    routingCode: '',
-    method: 'Bank Transfer',
-    notes: '',
-  })
+    campaignId: "",
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    routingCode: "",
+    method: "Bank Transfer",
+    notes: "",
+  });
   const session = useSession();
-    const TOKEN = session?.data?.user?.accessToken;
+  const TOKEN = session?.data?.user?.accessToken;
+
+  const params = useParams();
+  const campaignId = params?.id as string;
+
+  useEffect(() => {
+    if (campaignId) {
+      setFormData((prev) => ({ ...prev, campaignId }));
+    }
+  }, [campaignId]);
 
   const withdrawalMutation = useMutation({
     mutationFn: async (data: WithdrawalFormData) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/withdrawals`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${TOKEN}`,},
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`,
+          },
           body: JSON.stringify(data),
-        }
-      )
+        },
+      );
       if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData?.message || 'Request failed')
+        const errorData = await res.json();
+        throw new Error(errorData?.message || "Request failed");
       }
-      return res.json()
+      return res.json();
     },
     onSuccess: () => {
-      alert('Withdrawal request submitted successfully!')
+      toast.success("Withdrawal request submitted successfully!");
       setFormData({
-        campaignId: '',
-        bankName: '',
-        accountName: '',
-        accountNumber: '',
-        routingCode: '',
-        method: 'Bank Transfer',
-        notes: '',
-      })
+        campaignId,
+        bankName: "",
+        accountName: "",
+        accountNumber: "",
+        routingCode: "",
+        method: "Bank Transfer",
+        notes: "",
+      });
     },
     onError: (err: Error) => {
-      alert(`Error: ${err.message}`)
+      toast.error(err.message);
     },
-  })
+  });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const handleSubmit = () => {
-    withdrawalMutation.mutate(formData)
-  }
+    withdrawalMutation.mutate(formData);
+  };
 
   const inputClass =
-    'w-full bg-transparent border border-zinc-700 rounded-md px-4 py-2.5 text-white placeholder:text-zinc-500 focus:outline-none focus:border-yellow-500 transition-colors'
+    "w-full bg-transparent border border-zinc-700 rounded-md px-4 py-2.5 text-white placeholder:text-zinc-500 focus:outline-none focus:border-yellow-500 transition-colors";
 
   return (
-    <div className="min-h-screen  font-sans">
+    <div className="min-h-screen  font-sans p-6">
       {/* Withdraw History Button */}
       <div className="flex justify-end mb-4">
         <button className="flex items-center gap-2 border border-yellow-500 text-yellow-400 px-4 py-2 rounded-md hover:bg-yellow-500/10 transition-colors">
@@ -86,12 +100,16 @@ function WinnersForm() {
 
       {/* Form Card */}
       <div className="bg-[#1c1c1c] rounded-xl p-8 max-w-5xl mx-auto">
-        <h2 className="text-white text-xl font-semibold mb-6">Request Withdrawal</h2>
+        <h2 className="text-white text-xl font-semibold mb-6">
+          Request Withdrawal
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Full Name / Account Name */}
           <div>
-            <label className="text-zinc-300 text-sm mb-1 block">Full Name*</label>
+            <label className="text-zinc-300 text-sm mb-1 block">
+              Full Name*
+            </label>
             <input
               name="accountName"
               value={formData.accountName}
@@ -101,33 +119,38 @@ function WinnersForm() {
             />
           </div>
 
-          {/* Campaign ID */}
+          {/* Campaign Name */}
           <div>
-            <label className="text-zinc-300 text-sm mb-1 block">Campaign name*</label>
+            <label className="text-zinc-300 text-sm mb-1 block">
+              Campaign name*
+            </label>
             <input
-              name="campaignId"
-              value={formData.campaignId}
+              name="campaignName"
               onChange={handleChange}
-              placeholder="Mayfair Estates Draw.."
+              placeholder="Enter campaign name.."
               className={inputClass}
             />
           </div>
 
-          {/* Amount / Routing Code */}
+          {/* Routing Code */}
           <div>
-            <label className="text-zinc-300 text-sm mb-1 block">Amount/Prize Name ($)*</label>
+            <label className="text-zinc-300 text-sm mb-1 block">
+              Routing Code*
+            </label>
             <input
               name="routingCode"
               value={formData.routingCode}
               onChange={handleChange}
-              placeholder="$40"
+              placeholder="SWIFT123"
               className={inputClass}
             />
           </div>
 
           {/* Bank Name */}
           <div>
-            <label className="text-zinc-300 text-sm mb-1 block">Bank Name*</label>
+            <label className="text-zinc-300 text-sm mb-1 block">
+              Bank Name*
+            </label>
             <input
               name="bankName"
               value={formData.bankName}
@@ -154,7 +177,9 @@ function WinnersForm() {
 
           {/* Account Number */}
           <div>
-            <label className="text-zinc-300 text-sm mb-1 block">Bank Account Number*</label>
+            <label className="text-zinc-300 text-sm mb-1 block">
+              Bank Account Number*
+            </label>
             <input
               name="accountNumber"
               value={formData.accountNumber}
@@ -165,6 +190,19 @@ function WinnersForm() {
           </div>
         </div>
 
+        {/* Notes */}
+        <div className="mt-6">
+          <label className="text-zinc-300 text-sm mb-1 block">Notes</label>
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="Please process ASAP"
+            rows={3}
+            className={`${inputClass} resize-none`}
+          />
+        </div>
+
         {/* Submit Button */}
         <div className="flex justify-end mt-8">
           <button
@@ -172,12 +210,12 @@ function WinnersForm() {
             disabled={withdrawalMutation.isPending}
             className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black font-semibold px-6 py-2.5 rounded-md transition-colors"
           >
-            {withdrawalMutation.isPending ? 'Submitting...' : 'Submit Request'}
+            {withdrawalMutation.isPending ? "Submitting..." : "Submit Request"}
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default WinnersForm
+export default WinnersForm;
