@@ -6,6 +6,13 @@ import { Eye } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface WithdrawalFormData {
   campaignId: string;
@@ -18,6 +25,7 @@ interface WithdrawalFormData {
 }
 
 function WinnersForm() {
+  const [campaignName, setCampaignName] = useState("");
   const [formData, setFormData] = useState<WithdrawalFormData>({
     campaignId: "",
     bankName: "",
@@ -54,7 +62,9 @@ function WinnersForm() {
       );
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData?.message || "Request failed");
+        throw new Error(
+          errorData?.error || errorData?.message || "Request failed",
+        );
       }
       return res.json();
     },
@@ -76,13 +86,37 @@ function WinnersForm() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = () => {
-    withdrawalMutation.mutate(formData);
+    if (!campaignId) {
+      toast.error("Campaign ID is missing");
+      return;
+    }
+
+    if (
+      !formData.accountName.trim() ||
+      !formData.routingCode.trim() ||
+      !formData.bankName.trim() ||
+      !formData.accountNumber.trim() ||
+      !formData.method.trim()
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    withdrawalMutation.mutate({
+      campaignId,
+      bankName: formData.bankName.trim(),
+      accountName: formData.accountName.trim(),
+      accountNumber: formData.accountNumber.trim(),
+      routingCode: formData.routingCode.trim(),
+      method: formData.method,
+      notes: formData.notes.trim(),
+    });
   };
 
   const inputClass =
@@ -125,8 +159,8 @@ function WinnersForm() {
               Campaign name*
             </label>
             <input
-              name="campaignName"
-              onChange={handleChange}
+              value={campaignName}
+              onChange={(e) => setCampaignName(e.target.value)}
               placeholder="Enter campaign name.."
               className={inputClass}
             />
@@ -163,16 +197,21 @@ function WinnersForm() {
           {/* Method */}
           <div>
             <label className="text-zinc-300 text-sm mb-1 block">Method</label>
-            <select
-              name="method"
+            <Select
               value={formData.method}
-              onChange={handleChange}
-              className={inputClass}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, method: value }))
+              }
             >
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Mobile Banking">Mobile Banking</option>
-              <option value="Cash">Cash</option>
-            </select>
+              <SelectTrigger className={`${inputClass} h-[46px]`}>
+                <SelectValue placeholder="Select method" />
+              </SelectTrigger>
+              <SelectContent className="border-zinc-700 bg-[#1c1c1c] text-white">
+                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                <SelectItem value="Mobile Banking">Mobile Banking</SelectItem>
+                <SelectItem value="Cash">Cash</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Account Number */}
