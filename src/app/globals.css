@@ -74,3 +74,17 @@
 body {
   font-family: var(--font-montserrat);
 }
+
+@layer utilities {
+  .gradient-border {
+    border: 4px solid;
+    border-radius: 12px; /* 👈 add this */
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+      265.74deg,
+      #6C3F1A 2.88%,
+      #FCFBB1 46.47%,
+      #392713 88.42%
+    );
+  }
+}
