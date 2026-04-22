@@ -32,7 +32,9 @@ function HomeHero() {
   const { data: heroData, isLoading } = useQuery<ApiResponse>({
     queryKey: ["hero"],
     queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/public?status=featured`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/campaigns/public?status=featured`,
+      );
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },
@@ -69,114 +71,147 @@ function HomeHero() {
     : 0;
 
   return (
-    <section className="relative w-full h-screen flex items-center overflow-hidden bg-[#111111]">
-      {/* Background image */}
+    <section className="relative w-full min-h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden md:py-4">
+      {/* BACKGROUND & OVERLAY */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/heroimage.png')" }}
-      />
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/bg-ifi.svg')" }}
+      >
+        {/* Dark Gradient Overlay for text readability */}
+        {/* <div className="absolute inset-0 bg-black/60 md:bg-gradient-to-r md:from-black/80 md:to-black/30" /> */}
+      </div>
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center justify-between gap-10">
-        {/* Left */}
-        <div className="flex-1 max-w-xl">
-          <p className="text-[#c9a84c] text-xs tracking-[0.2em] uppercase mb-4">
-            Limited Edition Opportunity
-          </p>
-          <h1 className="text-white text-5xl md:text-6xl font-serif font-bold leading-[1.1] mb-2">
-            Win Big.
-            <br />
-            Support Real
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full mt-20">
+        {/* TOP HEADING SECTION (Full Width) */}
+        <div className="">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight">
+            {/* Gold Gradient Text Part */}
+            <span className="bg-gradient-to-b from-[#E2C275] via-[#C9A84C] to-[#A67C37] bg-clip-text text-transparent">
+              Win $10,000 Cash
+            </span>
+
+            {/* Sub-text with subtle gold/gray color */}
+            <span className="text-[#C9A84C]/80 font-light italic ml-4">
+              — <span className="text-[#E5E2E1]">Zoey</span> Featured Campaign
+            </span>
           </h1>
-          <h1 className="text-[#c9a84c] text-5xl md:text-6xl font-serif font-bold leading-[1.1] mb-6">
-            Campaigns.
-          </h1>
-          <p className="text-[#999999] text-sm leading-relaxed mb-8 max-w-sm">
-            Enter our live campaign for a chance to win a featured cash prize
-            while supporting selected campaign partners.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/signin"
-              className="bg-[#c9a84c] text-black text-xs font-bold tracking-[0.15em] uppercase px-7 py-3 hover:bg-[#b8963f] transition-colors"
-            >
-              Enter Now
-            </Link>
-            <Link
-              href="/how-it-works"
-              className="text-white text-xs font-semibold tracking-[0.1em] uppercase px-4 py-3 hover:text-[#c9a84c] transition-colors"
-            >
-              How It Works
-            </Link>
-          </div>
         </div>
 
-        {/* Right — Prize & Countdown */}
-        <div className="bg-black/50 border border-[#2a2a2a] backdrop-blur-sm p-8 min-w-[460px]">
-          <p className="text-[#666666] text-[10px] tracking-[0.2em] uppercase mb-2">
-            Current Grand Prize
-          </p>
-
-          {isLoading ? (
-            <div className="animate-pulse">
-              <div className="h-8 bg-[#2a2a2a] rounded w-48 mb-2" />
-              <div className="h-4 bg-[#2a2a2a] rounded w-32 mb-8" />
+        {/* BOTTOM FLEX SECTION */}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-12">
+          {/* LEFT CONTENT */}
+          <div className="flex-1 max-w-xl">
+            <div className="space-y-6 text-gray-300">
+              <p className="text-lg md:text-xl">
+                Enter this campaign for a chance to WIN $10,000.
+              </p>
+              <p className="text-sm md:text-base text-gray-400">
+                Choose a free entry or paid entry before the campaign ends.{" "}
+                <br />
+                Zoey is the featured participant in this promotional campaign.
+              </p>
+              <div className="flex flex-wrap gap-6 text-[10px] uppercase tracking-[0.2em] font-semibold text-gray-500">
+                <span className="flex items-center gap-2">
+                  <span className="text-[#c9a84c]">✔</span> 100% Legal & Secure
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-[#c9a84c]">✔</span> Fair Sweepstakes
+                  Campaign
+                </span>
+              </div>
             </div>
-          ) : (
-            <>
-              <p className="text-white text-3xl font-bold mb-1">
-                {campaign?.campaignPrice ?? "—"}
-              </p>
-              <p className="text-[#555555] text-xs mb-8">
-                {campaign?.description ?? "—"}
-              </p>
-            </>
-          )}
 
-          <p className="text-[#666666] text-[10px] tracking-[0.2em] uppercase mb-4">
-            Closing In
-          </p>
-          <div className="flex items-end gap-3 mb-6">
-            {[
-              { value: pad(timeLeft.days), label: "Days" },
-              { value: pad(timeLeft.hours), label: "Hours" },
-              { value: pad(timeLeft.mins), label: "Mins" },
-            ].map((item, i) => (
-              <React.Fragment key={item.label}>
-                {i > 0 && (
-                  <span className="text-[#c9a84c] text-2xl font-bold mb-3">:</span>
-                )}
-                <div className="flex flex-col items-center">
-                  <span className="text-white text-3xl font-bold leading-none">
-                    {item.value}
-                  </span>
-                  <span className="text-[#444444] text-[9px] tracking-widest uppercase mt-1">
-                    {item.label}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
+            <div className="flex flex-wrap gap-6 mt-10">
+              <Link
+                href="/signin"
+                className="bg-gradient-to-b from-[#e0bc5a] to-[#b8963f] text-black px-10 py-4 text-sm font-black tracking-widest uppercase shadow-2xl hover:scale-105 transition-transform"
+              >
+                Apply For Campaign
+              </Link>
+              <Link
+                href="/how-it-works"
+                className="flex items-center text-sm font-bold tracking-widest uppercase border-b-2 border-[#c9a84c] pb-1 hover:text-[#c9a84c]"
+              >
+                Creators: Click here to Apply!
+              </Link>
+            </div>
           </div>
 
-          {/* Ticket progress */}
-          {campaign && (
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-[#666666] text-[10px] tracking-[0.15em] uppercase">
-                  Tickets Sold
-                </span>
-                <span className="text-[#c9a84c] text-[10px] font-bold">
-                  {campaign.soldTickets}/{campaign.totalTickets} ({soldPct}%)
-                </span>
+          {/* GRADIENT BORDER BOX WRAPPER */}
+          <div className="w-full md:max-w-[440px] mt-20 relative overflow-hidden gradient-border p-4 shadow-[0_0_60px_rgba(0,0,0,0.9)]">
+            {/* INNER BOX */}
+            <div className="w-full h-full p-8 md:p-10 rounded-[inherit] relative overflow-hidden flex flex-col justify-center">
+              {/* Subtle glow inside */}
+              {/* <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#c9a84c]/10 blur-3xl rounded-full" /> */}
+
+              <p className="text-[10px] tracking-[0.3em] text-gray-500 uppercase mb-4 font-bold">
+                Current Grand Prize
+              </p>
+
+              {isLoading ? (
+                <div className="animate-pulse space-y-3 mb-10">
+                  <div className="h-14 bg-white/5 rounded w-3/4" />
+                  <div className="h-4 bg-white/5 rounded w-full" />
+                </div>
+              ) : (
+                <div className="mb-10">
+                  <h2 className="text-6xl md:text-7xl font-bold text-white mb-2 tracking-tighter">
+                    {campaign?.campaignPrice || "$10,000"}
+                  </h2>
+                  <p className="text-[#c9a84c] text-sm font-bold tracking-widest uppercase">
+                    Cash Prize
+                  </p>
+                </div>
+              )}
+
+              {/* Divider Line */}
+              <hr className="border-t border-white/10 mb-10" />
+
+              {/* COUNTDOWN */}
+              <div className="grid grid-cols-2 gap-6 mb-10">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-bold text-[#c9a84c]">
+                    {pad(timeLeft.days)}
+                  </span>
+                  <span className="text-gray-500 text-xs uppercase tracking-widest font-medium">
+                    Days
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-bold text-white">
+                    {pad(timeLeft.hours)}
+                  </span>
+                  <span className="text-gray-500 text-xs uppercase tracking-widest font-medium">
+                    Hours
+                  </span>
+                </div>
               </div>
-              <div className="w-full h-1 bg-[#2a2a2a] rounded-full">
-                <div
-                  className="h-1 bg-[#c9a84c] rounded-full transition-all duration-500"
-                  style={{ width: `${soldPct}%` }}
-                />
+
+              {/* PROGRESS SECTION */}
+              <div className="space-y-6">
+                <div className="bg-[#c9a84c]/10 border border-[#c9a84c]/30 py-4 rounded-lg text-center shadow-inner">
+                  <span className="text-[#c9a84c] text-[10px] font-black uppercase tracking-[0.2em]">
+                    Duration Controlled
+                  </span>
+                </div>
+
+                {campaign && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-[10px] uppercase tracking-widest font-black text-gray-500">
+                      <span>Progress</span>
+                      <span className="text-[#c9a84c]">{soldPct}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#b8963f] via-[#e0bc5a] to-[#b8963f] transition-all duration-1000 shadow-[0_0_15px_#c9a84c44]"
+                        style={{ width: `${soldPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </section>
